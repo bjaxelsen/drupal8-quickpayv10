@@ -19,10 +19,10 @@ a professional.
 Look at the test module for an example of how to use.
 
 ## Authors / Maintainers.
-Drupal 8 version
-Kristian Kaa (kaa4ever on Drupal.org)
+Drupal 8 version  
+Kristian Kaa (kaa4ever on Drupal.org)  
 kaakristian@gmail.com
 
-Drupal 7 version
-Thomas Fini Hansen (aka Xen on Drupal.org)
+Drupal 7 version  
+Thomas Fini Hansen (aka Xen on Drupal.org)  
 xen at xen dot dk
