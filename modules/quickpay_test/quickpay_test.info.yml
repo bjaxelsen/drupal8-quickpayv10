@@ -1,0 +1,6 @@
+type: module
+name: 'Quickpay Test'
+description: 'Module for testing/debugging the Quickpay payment window.'
+package: 'QuickPay payment gateway'
+core: '8.x'
+version: '1.0'

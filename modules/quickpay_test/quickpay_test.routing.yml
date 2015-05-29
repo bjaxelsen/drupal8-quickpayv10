@@ -1,0 +1,14 @@
+quickpay_test.checkout:
+  path: '/quickpay_test/checkout/{order_id}'
+  defaults:
+    _controller: '\Drupal\quickpay_test\Controller\QuickpayTestController::checkout'
+    _title: 'Quickpay Test checkout'
+  requirements:
+    _permission: 'access content'
+quickpay_test.success:
+  path: '/quickpay_test/success'
+  defaults:
+    _controller: '\Drupal\quickpay_test\Controller\QuickpayTestController::success'
+    _title: 'Quickpay Test success'
+  requirements:
+    _permission: 'access content'

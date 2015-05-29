@@ -1,0 +1,75 @@
+<?php
+/**
+ * @file
+ * Contains \Drupal\quickpay\QuickpayTransaction.
+ *
+ * Abstracts a transaction.
+ */
+
+namespace Drupal\quickpay;
+
+use Drupal\quickpay\QuickpayException;
+
+class QuickpayTransaction {
+  protected $loaded = FALSE;
+  protected $data = [];
+
+  /**
+   * Create a transaction object.
+   */
+  public function __construct() {
+    $arguments = func_get_args();
+    // If the argument passed to the contructor is an object, then create the transaction.
+    if (is_object($arguments[0])) {
+      $request = $arguments[0];
+      // We just authroized, so its always the first operation we work on.
+      $operation = $request->operations[0];
+      $this->data['approved'] = $operation->qp_status_code == '20000';
+      $this->data['order_id'] = $request->order_id;
+      $this->data['type'] = $operation->type;
+      $this->data['amount'] = $operation->amount;
+      $this->data['currency'] = $request->currency;
+      $this->data['created'] = $request->created_at;
+      $this->data['qp_status_code'] = $operation->qp_status_code;
+      $this->data['qp_status_msg'] = $operation->qp_status_msg;
+      $this->data['acquirer'] = $request->acquirer;
+      $this->data['aq_status_code'] = $operation->aq_status_code;
+      $this->data['aq_status_msg'] = $operation->aq_status_msg;
+    }
+    // Try to load a transaction.
+    else {
+      // @TODO
+    }
+  }
+
+  /**
+   * Magic get method.
+   *
+   * @return mixed.
+   */
+  public function __get($property) {
+    if (isset($this->data[$property])) {
+      return $this->data[$property];
+    }
+    return FALSE;
+  }
+
+  /**
+   * Stores the transaction in the DB.
+   *
+   * @TODO - Single responsability. This should not be here.
+   */
+  public function save() {
+    $quickpay = new Quickpay;
+    $exists = db_select('quickpay_transactions', 'qt')
+      ->fields('qt', array('order_id'))
+      ->condition('qt.order_id', $this->order_id)
+      ->execute()
+      ->fetch();
+    if (!$exists) {
+      db_insert('quickpay_transactions')
+        ->fields($this->data)
+        ->execute();
+    }
+  }
+}

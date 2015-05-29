@@ -1,0 +1,6 @@
+type: module
+name: 'QuickPay core'
+description: 'QuickPay payment gateway'
+package: 'QuickPay payment gateway'
+core: '8.x'
+version: '1.0'

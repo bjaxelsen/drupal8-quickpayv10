@@ -1,0 +1,18 @@
+<?php
+/**
+ * @file
+ * Module for testing/debugging the Quickpay payment window.
+ */
+
+/**
+ * Implements hook_quickpay_callback().
+ */
+function quickpay_test_quickpay_callback($order_id, $transaction) {
+  // Mark the order as payed if the transaction was approved.
+  if ($transaction->approved) {
+    \Drupal::logger('quickpay_test')->log(RfcLogLevel::ERROR, 'Transaction not approved for order ID: !id', array('!id' => $order_id));
+  }
+  else {
+    \Drupal::logger('quickpay_test')->log(RfcLogLevel::ERROR, 'Transaction not approved for order ID: !id', array('!id' => $order_id));
+  }
+}

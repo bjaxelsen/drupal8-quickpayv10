@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * Integrates quickpay.dk redirected payment service.
+ */
+
+// The protocol version we implement for the payment window.
+define('QUICKPAY_VERSION', 'v10');

@@ -1,0 +1,15 @@
+quickpay.callback:
+  path: '/quickpay/{order_id}'
+  defaults:
+    _controller: '\Drupal\quickpay\Controller\CallbackController::callback'
+    _title: 'Quickpay callback page'
+  requirements:
+    _custom_access: '\Drupal\quickpay\Controller\CallbackController::access'
+quickpay.settings:
+  path: '/admin/config/system/quickpay'
+  defaults:
+    _form: '\Drupal\quickpay\Form\SettingsForm'
+    _title: 'QuickPay settings'
+    _access: true
+  requirements:
+    _permission: 'administer site configuration'
