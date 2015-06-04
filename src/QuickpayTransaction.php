@@ -2,14 +2,15 @@
 /**
  * @file
  * Contains \Drupal\quickpay\QuickpayTransaction.
- *
- * Abstracts a transaction.
  */
 
 namespace Drupal\quickpay;
 
 use Drupal\quickpay\QuickpayException;
 
+/**
+ * Abstracts a transaction.
+ */
 class QuickpayTransaction {
   protected $loaded = FALSE;
   protected $data = [];
@@ -19,7 +20,7 @@ class QuickpayTransaction {
    */
   public function __construct() {
     $arguments = func_get_args();
-    // If the argument passed to the contructor is an object, then create the transaction.
+    // If the first argument is an object, then create the transaction.
     if (is_object($arguments[0])) {
       $request = $arguments[0];
       // We just authroized, so its always the first operation we work on.
@@ -45,7 +46,8 @@ class QuickpayTransaction {
   /**
    * Magic get method.
    *
-   * @return mixed.
+   * @return mixed
+   *   The value of the property, or FALSE otherwise.
    */
   public function __get($property) {
     if (isset($this->data[$property])) {
@@ -60,7 +62,7 @@ class QuickpayTransaction {
    * @TODO - Single responsability. This should not be here.
    */
   public function save() {
-    $quickpay = new Quickpay;
+    $quickpay = new Quickpay();
     $exists = db_select('quickpay_transactions', 'qt')
       ->fields('qt', array('order_id'))
       ->condition('qt.order_id', $this->order_id)
@@ -72,4 +74,5 @@ class QuickpayTransaction {
         ->execute();
     }
   }
+
 }

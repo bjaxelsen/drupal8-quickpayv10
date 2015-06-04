@@ -6,4 +6,7 @@
 
 namespace Drupal\quickpay;
 
+/**
+ * A custom Quickpay exception.
+ */
 class QuickpayException extends \Exception {}

@@ -59,7 +59,6 @@ class SettingsForm extends ConfigFormBase {
       '#required' => TRUE,
     );
 
-
     $form['settings']['private'] = array(
       '#type' => 'textfield',
       '#title' => t('Private'),
@@ -75,7 +74,7 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('order_prefix'),
     );
 
-    $languages = $this->get_languages() + array(LanguageInterface::LANGCODE_NOT_SPECIFIED => t('Language of the user'));
+    $languages = $this->getLanguages() + array(LanguageInterface::LANGCODE_NOT_SPECIFIED => t('Language of the user'));
 
     $form['settings']['language'] = array(
       '#type' => 'select',
@@ -103,7 +102,7 @@ class SettingsForm extends ConfigFormBase {
 
     $options = array();
     // Add image to the cards where defined.
-    foreach ($this->get_quickpay_cards() as $key => $card) {
+    foreach ($this->getQuickpayCards() as $key => $card) {
       $options[$key] = empty($card['image']) ? $card['name'] : '<img src="/' . $card['image'] . '" />' . $card['name'];
     }
 
@@ -162,11 +161,12 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-  * Returns an array of languages supported by Quickpay.
-  *
-  * @return array.
-  */
-  protected function get_languages() {
+   * Returns an array of languages supported by Quickpay.
+   *
+   * @return array
+   *   Array with key being language codes, and value being names.
+   */
+  protected function getLanguages() {
     return array(
       'da' => t('Danish'),
       'de' => t('German'),
@@ -185,9 +185,10 @@ class SettingsForm extends ConfigFormBase {
   /**
    * Information about all supported cards.
    *
-   * @return array.
+   * @return array
+   *   Array with card name and image.
    */
-  protected function get_quickpay_cards() {
+  protected function getQuickpayCards() {
     $images_path = drupal_get_path('module', 'quickpay') . '/images/';
     return array(
       'dankort' => array(
@@ -313,4 +314,3 @@ class SettingsForm extends ConfigFormBase {
   }
 
 }
-?>

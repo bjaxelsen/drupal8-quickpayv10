@@ -13,6 +13,7 @@ use Drupal\quickpay\QuickpayException;
 
 /**
  * The checkout form for redirect users to QuickPay for payment.
+ *
  * This is an abstract class, since custom modules must extend this form
  * in their own checkout forms.
  * Add custom variables to send to quickpay by adding them to $this->_custom.
@@ -33,11 +34,11 @@ abstract class CheckoutForm extends FormBase {
     $data['version'] = QUICKPAY_VERSION;
     $data['merchant_id'] = $quickpay->merchant;
     $data['agreement_id'] = $quickpay->agreement;
-    $data['order_id'] = $quickpay->order_prefix . $this->order_id;
+    $data['order_id'] = $quickpay->orderPrefix . $this->order_id;
     // Ensure that Order number is at least 4 characters. Else Quickpay will
     // reject the request. @TODO - Check that this is still required for v10.
     if (strlen($data['order_id']) < 4) {
-      $data['order_id'] = $quickpay->order_prefix . '0000';
+      $data['order_id'] = $quickpay->orderPrefix . '0000';
     }
     $currency_info = $quickpay->currencyInfo($this->currency);
     $data['amount'] = $quickpay->wireAmount($this->amount, $currency_info);
@@ -90,8 +91,9 @@ abstract class CheckoutForm extends FormBase {
   }
 
   /**
-   * Validates the implementation of this abstract class,
-   * by checking if the required properties has been set.
+   * Validates the implementation.
+   *
+   * Checking if the required properties has been set.
    */
   private function validateImplementation() {
     // Make sure the required variables are available.
@@ -111,4 +113,5 @@ abstract class CheckoutForm extends FormBase {
       throw new QuickpayException(t('Concrete must define "cancel_url".'));
     }
   }
+
 }

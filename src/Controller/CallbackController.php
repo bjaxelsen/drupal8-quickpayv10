@@ -13,19 +13,22 @@ use Drupal\Core\Access\AccessResult;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Endpoints for the routes defined.
+ */
 class CallbackController {
   /**
    * Callback from Quickpay.
    *
-   * @param string $order_id.
+   * @param string $order_id
+   *   The order ID from Quickpay.
    */
   public function callback($order_id) {
-    $response = new Response;
+    $response = new Response();
     $response->setStatusCode(500);
-    $quickpay = new Quickpay;
-    // Get the
-    $requestBody = file_get_contents("php://input");
-    $request = json_decode($requestBody);
+    $quickpay = new Quickpay();
+    $request_body = file_get_contents("php://input");
+    $request = json_decode($request_body);
     try {
       $transaction = new QuickpayTransaction($request);
       $transaction->save();
@@ -34,7 +37,7 @@ class CallbackController {
       $response->setStatusCode(200);
     }
     catch (Exception $e) {
-      \Drupal::logger('quickpay')->log(RfcLogLevel::WARNING, 'Could not create transaction from request: !request.', array('!request' => print_r($request, true)));
+      \Drupal::logger('quickpay')->log(RfcLogLevel::WARNING, 'Could not create transaction from request: !request.', array('!request' => print_r($request, TRUE)));
     }
     $response->send();
     exit;
@@ -44,15 +47,17 @@ class CallbackController {
    * Access callback to check that the url parameters hasn't been tampered with.
    *
    * @param string $order_id
+   *   The order ID from Quickpay.
    */
   public function access($order_id) {
-    $quickpay = new Quickpay;
-    $requestBody = file_get_contents("php://input");
-    $checksum = $quickpay->getChecksumFromRequest($requestBody);
+    $quickpay = new Quickpay();
+    $request_body = file_get_contents("php://input");
+    $checksum = $quickpay->getChecksumFromRequest($request_body);
     if (isset($_SERVER['HTTP_QUICKPAY_CHECKSUM_SHA256']) && strcmp($checksum, $_SERVER['HTTP_QUICKPAY_CHECKSUM_SHA256']) === 0) {
       return AccessResult::allowed();
     }
     \Drupal::logger('quickpay')->log(RfcLogLevel::WARNING, 'Computed checksum does not match header checksum.');
     return AccessResult::forbidden();
   }
+
 }

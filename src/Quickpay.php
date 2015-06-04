@@ -2,8 +2,6 @@
 /**
  * @file
  * Contains \Drupal\quickpay\Quickpay.
- *
- * The Quickpay class abstracts a specific setup.
  */
 
 namespace Drupal\quickpay;
@@ -11,6 +9,9 @@ namespace Drupal\quickpay;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\quickpay\QuickpayTransaction;
 
+/**
+ * The Quickpay class abstracts a specific setup.
+ */
 class Quickpay {
   public $merchant;
   public $agreement;
@@ -18,10 +19,10 @@ class Quickpay {
   public $private;
   public $autofee = FALSE;
   public $debug = FALSE;
-  public $order_prefix = '';
-  protected $accepted_cards = array('creditcard');
+  public $orderPrefix = '';
+  protected $acceptedCards = array('creditcard');
   public $language = LanguageInterface::LANGCODE_NOT_SPECIFIED;
-  protected static $currency_info = array();
+  protected static $currencyInfo = array();
 
 
   /**
@@ -40,11 +41,11 @@ class Quickpay {
       $this->debug = (bool) $config->get('debug');
     }
     if ($config->get('order_prefix')) {
-      $this->order_prefix = $config->get('order_prefix');
+      $this->orderPrefix = $config->get('order_prefix');
     }
     // @todo validate this
     if ($config->get('accepted_cards')) {
-      $this->accepted_cards = $config->get('accepted_cards');
+      $this->acceptedCards = $config->get('accepted_cards');
     }
     if ($config->get('language')) {
       $this->language = $config->get('language');
@@ -53,12 +54,12 @@ class Quickpay {
 
   /**
    * Get the language of the user.
-   * Default to english.
    *
    * @TODO: If LanguageInterface::LANGCODE_NOT_SPECIFIED the current users language should
    * be used and not 'en'.
    *
-   * @return string.
+   * @return string
+   *   The language code. Defaults to 'en'.
    */
   public function getLanguage() {
     $language_code = LanguageInterface::LANGCODE_NOT_SPECIFIED ? 'en' : $this->language;
@@ -89,7 +90,7 @@ class Quickpay {
    *   An array with the keys 'code' and 'multiplier', or null if not found.
    */
   public function currencyInfo($code) {
-    if (!array_key_exists($code, Quickpay::$currency_info)) {
+    if (!array_key_exists($code, Quickpay::$currencyInfo)) {
       // Use a basic set.
       $base_currencies = array(
         'DKK' => array('code' => 'DKK', 'multiplier' => 100),
@@ -101,13 +102,13 @@ class Quickpay {
         'ISK' => array('code' => 'ISK', 'multiplier' => 100),
       );
 
-      Quickpay::$currency_info += $base_currencies;
+      Quickpay::$currencyInfo += $base_currencies;
       // If still not found, throw an exception.
-      if (!array_key_exists($code, Quickpay::$currency_info)) {
+      if (!array_key_exists($code, Quickpay::$currencyInfo)) {
         throw new QuickpayException(t('Unknown currency code %currency', array('%currency' => $code)));
       }
     }
-    return Quickpay::$currency_info[$code];
+    return Quickpay::$currencyInfo[$code];
   }
 
   /**
@@ -118,7 +119,7 @@ class Quickpay {
    * @param array|string $currency_info
    *   An currency_info() array, or a currency code.
    */
-  public function wireAmount($amount, $currency_info) {
+  public function wireAmount(decimal $amount, $currency_info) {
     if (!is_array($currency_info)) {
       $currency_info = $this->currencyInfo($currency_info);
     }
@@ -144,25 +145,28 @@ class Quickpay {
    * Return the proper cardtypelock for the accepted cards.
    */
   public function getPaymentMethods() {
-    if (is_array($this->accepted_cards)) {
-      $cards = $this->accepted_cards;
+    if (is_array($this->acceptedCards)) {
+      $cards = $this->acceptedCards;
       // Aren't supported in cardtypelock.
       unset($cards['ikano']);
-      return join(',', $cards);
+      return implode(',', $cards);
     }
     // Already set to the proper string.
-    return $this->accepted_cards;
+    return $this->acceptedCards;
   }
 
   /**
    * Calculate the md5checksum for the request.
+   *
    * Read more at http://tech.quickpay.net/payments/hosted/#checksum.
    *
-   * @param array $data.
+   * @param array $data
+   *   The data to POST to Quickpay.
    *
-   * @return string.
+   * @return string
+   *   The checksum.
    */
-  public function getChecksum($data) {
+  public function getChecksum(array $data) {
     ksort($data);
     $base = implode(" ", $data);
     return hash_hmac("sha256", $base, $this->api);
@@ -171,11 +175,14 @@ class Quickpay {
   /**
    * Build the checksum from the request callback from quickpay.
    *
-   * @param object $request.
+   * @param object $request
+   *   The request data from Quickpay.
    *
-   * @return string.
+   * @return string
+   *   The checksum.
    */
   public function getChecksumFromRequest($request) {
     return hash_hmac("sha256", $request, $this->private);
   }
+
 }

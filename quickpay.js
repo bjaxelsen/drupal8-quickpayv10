@@ -1,4 +1,5 @@
 (function ($) {
+  'use strict';
   Drupal.behaviors.quickpayCardSelection = {
     attach: function (context, settings) {
       // Avoid slide animation if cards is hidden on load.
@@ -7,12 +8,12 @@
       }
       // Toggle the display as necessary when the radio is clicked.
       $('#quickpay-method input:radio').change(function () {
-      if ($(this).val() == 'selected') {
-        $('#quickpay-cards').slideDown();
-      }
-      else {
-        $('#quickpay-cards').slideUp();
-      }
+        if ($(this).val() == 'selected') {
+          $('#quickpay-cards').slideDown();
+        }
+        else {
+          $('#quickpay-cards').slideUp();
+        }
       });
     }
   };
