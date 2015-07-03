@@ -1,0 +1,14 @@
+quickpay_example.checkout:
+  path: '/quickpay_example/checkout/{node}'
+  defaults:
+    _form: 'Drupal\quickpay_example\Form\CheckoutForm'
+    _title: 'Quickpay Example checkout'
+  requirements:
+    _permission: 'access content'
+quickpay_example.success:
+  path: '/quickpay_example/success'
+  defaults:
+    _controller: '\Drupal\quickpay_example\Controller\QuickpayExampleController::success'
+    _title: 'Quickpay Example success'
+  requirements:
+    _permission: 'access content'

@@ -4,15 +4,15 @@
     attach: function (context, settings) {
       // Avoid slide animation if cards is hidden on load.
       if ($('#quickpay-method input:radio:checked').val() != 'selected') {
-        $('#quickpay-cards').hide();
+        $('#quickpay-cards').closest('fieldset').hide();
       }
       // Toggle the display as necessary when the radio is clicked.
       $('#quickpay-method input:radio').change(function () {
         if ($(this).val() == 'selected') {
-          $('#quickpay-cards').slideDown();
+          $('#quickpay-cards').closest('fieldset').slideDown();
         }
         else {
-          $('#quickpay-cards').slideUp();
+          $('#quickpay-cards').closest('fieldset').slideUp();
         }
       });
     }

@@ -6,12 +6,12 @@
 
 namespace Drupal\quickpay\Controller;
 
-use Drupal\quickpay\Quickpay;
+use Drupal\quickpay\Entity\Quickpay;
 use Drupal\quickpay\QuickpayTransaction;
 use Drupal\Core\Logger\RfcLogLevel;
-use Drupal\Core\Access\AccessResult;
-use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+
 
 /**
  * Endpoints for the routes defined.
@@ -23,7 +23,8 @@ class CallbackController {
    * @param string $order_id
    *   The order ID from Quickpay.
    */
-  public function callback($order_id) {
+  public function callback($order_id, Request $request) {
+//    die(print_r($request->get('test')));
     $response = new Response();
     $response->setStatusCode(500);
     $quickpay = new Quickpay();
@@ -41,23 +42,6 @@ class CallbackController {
     }
     $response->send();
     exit;
-  }
-
-  /**
-   * Access callback to check that the url parameters hasn't been tampered with.
-   *
-   * @param string $order_id
-   *   The order ID from Quickpay.
-   */
-  public function access($order_id) {
-    $quickpay = new Quickpay();
-    $request_body = file_get_contents("php://input");
-    $checksum = $quickpay->getChecksumFromRequest($request_body);
-    if (isset($_SERVER['HTTP_QUICKPAY_CHECKSUM_SHA256']) && strcmp($checksum, $_SERVER['HTTP_QUICKPAY_CHECKSUM_SHA256']) === 0) {
-      return AccessResult::allowed();
-    }
-    \Drupal::logger('quickpay')->log(RfcLogLevel::WARNING, 'Computed checksum does not match header checksum.');
-    return AccessResult::forbidden();
   }
 
 }

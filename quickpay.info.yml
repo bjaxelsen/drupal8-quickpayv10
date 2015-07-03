@@ -1,5 +1,5 @@
 type: module
-name: 'QuickPay core'
+name: 'QuickPay'
 description: 'QuickPay payment gateway'
 package: 'QuickPay payment gateway'
 core: '8.x'

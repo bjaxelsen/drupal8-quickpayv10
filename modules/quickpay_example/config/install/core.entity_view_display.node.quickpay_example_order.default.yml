@@ -1,0 +1,34 @@
+langcode: da
+status: true
+dependencies:
+  config:
+    - field.field.node.quickpay_example_order.field_example_order_id
+    - field.field.node.quickpay_example_order.field_example_transaction_id
+    - node.type.quickpay_example_order
+  module:
+    - user
+id: node.quickpay_example_order.default
+targetEntityType: node
+bundle: quickpay_example_order
+mode: default
+content:
+  field_example_order_id:
+    weight: 104
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_example_transaction_id:
+    type: string
+    weight: 103
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    label: above
+  links:
+    weight: 100
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  langcode: true

@@ -56,23 +56,4 @@ class QuickpayTransaction {
     return FALSE;
   }
 
-  /**
-   * Stores the transaction in the DB.
-   *
-   * @TODO - Single responsability. This should not be here.
-   */
-  public function save() {
-    $quickpay = new Quickpay();
-    $exists = db_select('quickpay_transactions', 'qt')
-      ->fields('qt', array('order_id'))
-      ->condition('qt.order_id', $this->order_id)
-      ->execute()
-      ->fetch();
-    if (!$exists) {
-      db_insert('quickpay_transactions')
-        ->fields($this->data)
-        ->execute();
-    }
-  }
-
 }

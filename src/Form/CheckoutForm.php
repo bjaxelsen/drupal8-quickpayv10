@@ -7,6 +7,7 @@
 namespace Drupal\quickpay\Form;
 
 use Drupal\Core\Form\FormBase;
+use Drupal\quickpay\CheckoutFormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\quickpay\Quickpay;
 use Drupal\quickpay\QuickpayException;
@@ -27,44 +28,42 @@ abstract class CheckoutForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     // Make sure all the required properties are set on the form.
     $this->validateImplementation();
-    $quickpay = new Quickpay();
+    // Build the form.
     $form['#method'] = 'POST';
     $form['#action'] = 'https://payment.quickpay.net';
     // Required variables.
     $data['version'] = QUICKPAY_VERSION;
-    $data['merchant_id'] = $quickpay->merchant;
-    $data['agreement_id'] = $quickpay->agreement;
-    $data['order_id'] = $quickpay->orderPrefix . $this->order_id;
+    $data['merchant_id'] = $this->quickpay->merchant_id;
+    $data['agreement_id'] = $this->quickpay->agreement_id;
+    $data['order_id'] = $this->quickpay->orderPrefix . $this->order_id;
     // Ensure that Order number is at least 4 characters. Else Quickpay will
-    // reject the request. @TODO - Check that this is still required for v10.
+    // reject the request.
     if (strlen($data['order_id']) < 4) {
-      $data['order_id'] = $quickpay->orderPrefix . '0000';
+      $data['order_id'] = $this->quickpay->order_prefix . substr('0000' . $this->order_id, -4 + strlen($this->quickpay->order_prefix));
     }
-    $currency_info = $quickpay->currencyInfo($this->currency);
-    $data['amount'] = $quickpay->wireAmount($this->amount, $currency_info);
+    $currency_info = $this->quickpay->currencyInfo($this->currency);
+    $data['amount'] = $this->quickpay->wireAmount($this->amount, $currency_info);
     $data['currency'] = $currency_info['code'];
     $data['continueurl'] = $this->continue_url;
     $data['cancelurl'] = $this->cancel_url;
     $data['callbackurl'] = \Drupal::url('quickpay.callback', array('order_id' => $this->order_id), array('absolute' => TRUE));
     // Set the optional variables.
-    $data['language'] = $quickpay->getLanguage();
-    $data['autocapture'] = isset($this->autocapture) && $this->autocapture ? '1' : '0';
-    $data['payment_methods'] = $quickpay->getPaymentMethods();
-    $data['autofee'] = $quickpay->autofee ? 1 : 0;
+    $data['language'] = $this->quickpay->getLanguage();
+    $data['autocapture'] = isset($this->quickpay->autocapture) && $this->quickpay->autocapture ? '1' : '0';
+    $data['payment_methods'] = $this->quickpay->getPaymentMethods();
+    $data['autofee'] = $this->quickpay->autofee ? 1 : 0;
+    // Add the ID of the Quickpay configuration as a custom variable to load it
+    // in the response.
+    $data['variables[quickpay_configuration_id]'] = $this->quickpay->id;
     // Add any custom fields.
     if (isset($this->_custom) && is_array($this->_custom)) {
       foreach ($this->_custom as $key => $value) {
         $data['variables[' . $key . ']'] = $value;
       }
     }
-    // Since Quickpay is generating their checksum from all the POST parameters,
-    // the value of the button (the text) is a part of the request parameter,
-    // with key op.
-    // @TODO - Find a better solution.
-    $data['op'] = t('Continue to QuickPay');
     // Build the checksum.
-    $data['checksum'] = $quickpay->getChecksum($data);
-    // Build the form elements.
+    $data['checksum'] = $this->quickpay->getChecksum($data);
+    // Add all data elements as hidden input fields.
     foreach ($data as $name => $value) {
       $form[$name] = array('#type' => 'hidden', '#value' => $value);
     }
@@ -97,6 +96,9 @@ abstract class CheckoutForm extends FormBase {
    */
   private function validateImplementation() {
     // Make sure the required variables are available.
+    if (!isset($this->quickpay)) {
+      throw new QuickpayException(t('Concrete must define "order_id".'));
+    }
     if (!isset($this->order_id)) {
       throw new QuickpayException(t('Concrete must define "order_id".'));
     }
