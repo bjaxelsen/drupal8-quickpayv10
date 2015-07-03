@@ -12,7 +12,6 @@ use Drupal\quickpay\QuickpayException;
  * Abstracts a transaction.
  */
 class QuickpayTransaction {
-  protected $loaded = FALSE;
   protected $data = [];
 
   /**
