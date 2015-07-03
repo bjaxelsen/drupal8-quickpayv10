@@ -7,7 +7,6 @@
 namespace Drupal\quickpay\Form;
 
 use Drupal\Core\Form\FormBase;
-use Drupal\quickpay\CheckoutFormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\quickpay\Quickpay;
 use Drupal\quickpay\QuickpayException;

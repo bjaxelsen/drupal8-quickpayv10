@@ -9,8 +9,6 @@ namespace Drupal\quickpay\Entity;
 use Drupal\quickpay\QuickpayInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Language\LanguageInterface;
-use Drupal\quickpay\QuickpayTransaction;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Defines the Quickpay entity.
