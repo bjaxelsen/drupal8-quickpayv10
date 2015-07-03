@@ -9,7 +9,7 @@ namespace Drupal\quickpay;
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Defines a class to build a listing of quickpay config entities.
@@ -39,7 +39,7 @@ class QuickpayListBuilder extends ConfigEntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     $row['label'] = $this->getLabel($entity);
-    $row['description'] = String::checkPlain($entity->get('description'));
+    $row['description'] = SafeMarkup::checkPlain($entity->get('description'));
     return $row + parent::buildRow($entity);
   }
 
