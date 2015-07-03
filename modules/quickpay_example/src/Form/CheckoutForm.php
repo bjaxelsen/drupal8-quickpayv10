@@ -27,12 +27,8 @@ class CheckoutForm extends QuickpayCheckoutForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state, NodeInterface $node = NULL) {
     $this->quickpay = Quickpay::load('example');
-    $this->order_id = time();
-
-    $node->set('field_example_order_id', $this->order_id);
-    $node->save();
-
-    $this->amount = 100;
+    $this->order_id = $node->id();
+    $this->amount = 1;
     $this->currency = 'DKK';
     $this->continue_url = \Drupal::url('quickpay_example.success', array(), array('absolute' => TRUE));
     $this->cancel_url = \Drupal::url('quickpay_example.checkout', array('node' => $node->id()), array('absolute' => TRUE));

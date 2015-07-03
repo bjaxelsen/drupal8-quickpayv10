@@ -3,7 +3,6 @@ langcode: da
 status: true
 dependencies:
   config:
-    - field.field.node.quickpay_example_order.field_example_order_id
     - field.field.node.quickpay_example_order.field_example_transaction_id
     - node.type.quickpay_example_order
   module:
@@ -18,13 +17,6 @@ content:
     weight: 10
     settings: {  }
     third_party_settings: {  }
-  field_example_order_id:
-    weight: 34
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-    type: string_textfield
   field_example_transaction_id:
     weight: 33
     settings:
