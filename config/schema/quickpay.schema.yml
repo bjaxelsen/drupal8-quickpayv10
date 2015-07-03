@@ -1,0 +1,46 @@
+quickpay.configuration.*:
+  type: config_entity
+  label: 'Quickpay configuration'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    description:
+      type: label
+      label: 'Description'
+    merchant_id:
+      type: string
+      label: 'Merchant ID'
+    agreement_id:
+      type: string
+      label: 'Agreement ID'
+    api_key:
+      type: string
+      label: 'API key'
+    private_key:
+      type: string
+      label: 'Private key'
+    order_prefix:
+      type: string
+      label: 'Order prefix'
+    language:
+      type: string
+      label: 'Language'
+    payment_method:
+      type: string
+      label: 'Payment method'
+    accepted_cards:
+      type: sequence
+      label: 'Accepted cards'
+    autofee:
+      type: boolean
+      label: 'Autofee'
+    autocapture:
+      type: boolean
+      label: 'Autocapture'
+    debug:
+      type: boolean
+      label: 'Debug'

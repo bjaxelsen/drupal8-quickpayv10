@@ -1,6 +1,6 @@
-quickpay.settings:
-  title: 'QuickPay settings'
+quickpay.configurations:
+  title: 'QuickPay configurations'
   parent: system.admin_config_system
-  description: 'Change settings for the QuickPay integration.'
-  route_name: quickpay.settings
+  description: 'Update configurations for QuickPay integrations.'
+  route_name: quickpay.configuration_list
   weight: -20

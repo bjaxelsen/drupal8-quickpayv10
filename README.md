@@ -1,4 +1,12 @@
 # Drupal 8 Quickpay v10 module
+
+## Changelog
+#### 03-07-2015
+* Removed local transaction table to avoid out-of-sync data with Quickpay
+* Renamed quickpay_test to quickpay_example because that’s what it is
+* Made Quickpay class a complex configuration entity.
+* Updated to work with beta11
+
 ## Overview
 This module works with the Danish payment gateway provider QuickPay.dk v10
 allowing you to receive payments using the payment options supported

@@ -1,0 +1,5 @@
+quickpay.configuration_add:
+  route_name: quickpay.configuration_add
+  title: 'Add new configuration'
+  appears_on:
+    - quickpay.configuration_list

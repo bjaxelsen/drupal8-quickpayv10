@@ -1,0 +1,20 @@
+langcode: da
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_example_transaction_id
+    - node.type.quickpay_example_order
+id: node.quickpay_example_order.field_example_transaction_id
+field_name: field_example_transaction_id
+entity_type: node
+bundle: quickpay_example_order
+label: 'Transaction ID'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: ''
+default_value_callback: ''
+settings: {  }
+field_type: string

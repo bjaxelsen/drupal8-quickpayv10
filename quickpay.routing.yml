@@ -4,12 +4,32 @@ quickpay.callback:
     _controller: '\Drupal\quickpay\Controller\CallbackController::callback'
     _title: 'Quickpay callback page'
   requirements:
-    _custom_access: '\Drupal\quickpay\Controller\CallbackController::access'
-quickpay.settings:
-  path: '/admin/config/system/quickpay'
+    _quickpay_callback_access_check: 'TRUE'
+quickpay.configuration_list:
+  path: '/admin/config/quickpay'
   defaults:
-    _form: '\Drupal\quickpay\Form\SettingsForm'
-    _title: 'QuickPay settings'
-    _access: true
+    _entity_list: 'configuration'
+    _title: 'Quickpay configurations'
+  requirements:
+    _permission: 'administer site configuration'
+quickpay.configuration_add:
+  path: '/admin/config/quickpay/configuration/add'
+  defaults:
+    _entity_form: configuration.default
+    _title: 'Add configuration'
+  requirements:
+    _permission: 'administer site configuration'
+entity.configuration.delete_form:
+  path: '/admin/config/quickpay/manage/{configuration}/delete'
+  defaults:
+    _entity_form: configuration.delete
+    _title: 'Delete configuration'
+  requirements:
+    _permission: 'administer site configuration'
+entity.configuration.edit_form:
+  path: '/admin/config/quickpay/manage/{configuration}'
+  defaults:
+    _entity_form: configuration.default
+    _title: 'Edit configuration'
   requirements:
     _permission: 'administer site configuration'

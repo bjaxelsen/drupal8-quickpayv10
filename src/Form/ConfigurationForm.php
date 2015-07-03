@@ -1,95 +1,110 @@
 <?php
 /**
  * @file
- * Contains \Drupal\quickpay\Form\SettingsForm.
+ * Contains \Drupal\quickpay\Form\ConfigurationForm.
  */
 
 namespace Drupal\quickpay\Form;
 
-use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageInterface;
 
 /**
- * Settings form.
+ * Form controller for the Quickpay configuration entity edit forms.
  */
-class SettingsForm extends ConfigFormBase {
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId() {
-    return 'quickpay_settings_form';
-  }
+class ConfigurationForm extends EntityForm {
 
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames() {
-    return ['quickpay.settings'];
-  }
+  public function form(array $form, FormStateInterface $form_state) {
+    /** @var \Drupal\quickpay\Entity\Quickpay $entity */
+    $entity = $this->entity;
 
-  /**
-   * {@inheritdoc}
-   */
-  public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = \Drupal::configFactory()->getEditable('quickpay.settings');
-    $form['#tree'] = TRUE;
+    $form['label'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Configuration name'),
+      '#default_value' => $entity->label(),
+      '#size' => 30,
+      '#required' => TRUE,
+      '#maxlength' => 64,
+    );
 
-    $form['settings']['merchant'] = array(
+    $form['id'] = array(
+      '#type' => 'machine_name',
+      '#default_value' => $entity->id(),
+      '#required' => TRUE,
+      '#disabled' => !$entity->isNew(),
+      '#size' => 30,
+      '#maxlength' => 64,
+      '#machine_name' => array(
+        'exists' => ['\Drupal\quickpay\Entity\Quickpay', 'load'],
+      ),
+    );
+
+    $form['description'] = array(
+      '#type' => 'textarea',
+      '#title' => $this->t('Configuration description'),
+      '#description' => $this->t('Where the configuration is used, usecases, etc.'),
+      '#default_value' => $entity->get('description'),
+      '#required' => TRUE,
+    );
+
+    $form['merchant_id'] = array(
       '#type' => 'textfield',
       '#title' => t('Merchant ID'),
       '#description' => t('This is the Merchant ID from the Quickpay manager.'),
-      '#default_value' => $config->get('merchant'),
+      '#default_value' => $entity->get('merchant_id'),
       '#required' => TRUE,
     );
 
-    $form['settings']['agreement'] = array(
+    $form['agreement_id'] = array(
       '#type' => 'textfield',
       '#title' => t('Agreement ID'),
       '#description' => t('This is the Agreement ID from the Quickpay manager.'),
-      '#default_value' => $config->get('agreement'),
+      '#default_value' => $entity->get('agreement_id'),
       '#required' => TRUE,
     );
 
-    $form['settings']['api'] = array(
+    $form['api_key'] = array(
       '#type' => 'textfield',
       '#title' => t('API'),
-      '#description' => t('This is the api key from the Quickpay manager.'),
-      '#default_value' => $config->get('api'),
+      '#description' => t('This is the API key from the Quickpay manager.'),
+      '#default_value' => $entity->get('api_key'),
       '#required' => TRUE,
     );
 
-    $form['settings']['private'] = array(
+    $form['private_key'] = array(
       '#type' => 'textfield',
       '#title' => t('Private'),
       '#description' => t('This is the private key from the Quickpay manager.'),
-      '#default_value' => $config->get('private'),
+      '#default_value' => $entity->get('private_key'),
       '#required' => TRUE,
     );
 
-    $form['settings']['order_prefix'] = array(
+    $form['order_prefix'] = array(
       '#type' => 'textfield',
-      '#title' => t('Order id prefix'),
-      '#description' => t('Prefix for order ids. Order ids must be uniqe when sent to QuickPay, use this to resolve clashes.'),
-      '#default_value' => $config->get('order_prefix'),
+      '#title' => t('Order ID prefix'),
+      '#description' => t('Prefix for order IDs. Order IDs must be uniqe when sent to QuickPay, use this to resolve clashes.'),
+      '#default_value' => $entity->get('order_prefix'),
     );
 
     $languages = $this->getLanguages() + array(LanguageInterface::LANGCODE_NOT_SPECIFIED => t('Language of the user'));
-
-    $form['settings']['language'] = array(
+    $form['language'] = array(
       '#type' => 'select',
       '#title' => t('Language'),
       '#description' => t('The language for the credit card form.'),
       '#options' => $languages,
-      '#default_value' => $config->get('language'),
+      '#default_value' => $entity->get('language'),
     );
 
-    $form['settings']['method'] = array(
+    $form['method'] = array(
       '#type' => 'radios',
       '#id' => 'quickpay-method',
       '#title' => t('Accepted payment methods'),
       '#description' => t('Which payment methods to accept. NOTE: Some require special agreements.'),
-      '#default_value' => $config->get('method'),
+      '#default_value' => $entity->get('payment_method'),
       '#options' => array(
         'creditcard' => t('Creditcard'),
         '3d-creditcard' => t('3D-Secure Creditcard'),
@@ -106,58 +121,81 @@ class SettingsForm extends ConfigFormBase {
       $options[$key] = empty($card['image']) ? $card['name'] : '<img src="/' . $card['image'] . '" />' . $card['name'];
     }
 
-    $form['settings']['cards'] = array(
+    $form['accepted_cards'] = array(
       '#type' => 'checkboxes',
       '#id' => 'quickpay-cards',
-      '#title' => t('Selected payment methods'),
-      '#default_value' => $config->get('cards'),
+      '#title' => t('Select accepted cards'),
+      '#default_value' => $entity->get('accepted_cards'),
       '#options' => $options,
     );
 
-    $form['settings']['splitpayment'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Split payments'),
-      '#description' => t('Allows for capturing payments in parts.'),
-      '#default_value' => $config->get('splitpayment'),
-    );
-
-    $form['settings']['autofee'] = array(
+    $form['autofee'] = array(
       '#type' => 'checkbox',
       '#title' => t('Autofee'),
       '#description' => t('If set, the fee charged by the acquirer will be calculated and added to the transaction amount.'),
-      '#default_value' => $config->get('autofee'),
+      '#default_value' => $entity->get('autofee'),
     );
 
-    $form['settings']['debug'] = array(
+    $form['autocapture'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Autocapture'),
+      '#description' => t('If set, the transactions will be automatically captured.'),
+      '#default_value' => $entity->get('autocapture'),
+    );
+
+    $form['debug'] = array(
       '#type' => 'checkbox',
       '#title' => t('Debug log'),
-      '#description' => t('Log all request and responses to QuickPay in watchdog.'),
-      '#default_value' => $config->get('debug'),
+      '#description' => t('Log all request and responses to QuickPay in the Watchdog.'),
+      '#default_value' => $entity->get('debug'),
     );
 
-    return parent::buildForm($form, $form_state);
+    return parent::form($form, $form_state, $this->entity);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    // Validate the order_prefix setting.
-    if (!preg_match('/^[a-zA-Z0-9]{0,15}$/', $form_state->getValues()['settings']['order_prefix'])) {
-      $form_state->setErrorByName('order_prefix', $this->t('Order prefix must only contain alphanumerics and be no longer than 15 characters.'));
+  public function save(array $form, FormStateInterface $form_state) {
+    /** @var \Drupal\quickpay\Entity\Quickpay $entity */
+    $entity = $this->entity;
+
+    // Prevent leading and trailing spaces.
+    $entity->set('label', trim($entity->label()));
+    $entity->set('description', $form_state->getValue('description'));
+    $entity->set('merchant_id', $form_state->getValue('merchant_id'));
+    $entity->set('agreement_id', $form_state->getValue('agreement_id'));
+    $entity->set('api_key', $form_state->getValue('api_key'));
+    $entity->set('private_key', $form_state->getValue('private_key'));
+    $entity->set('order_prefix', $form_state->getValue('order_prefix'));
+    $entity->set('language', $form_state->getValue('language'));
+    $entity->set('method', $form_state->getValue('method'));
+    if ($form_state->getValue('method') === 'selected') {
+      $entity->set('accepted_cards', $form_state->getValue('accepted_cards'));
     }
+    else {
+      $entity->set('accepted_cards', array($form_state->getValue('method')));
+    }
+    $entity->set('autofee', $form_state->getValue('autofee'));
+    $entity->set('debug', $form_state->getValue('debug'));
+    $status = $entity->save();
+
+    $edit_link = $entity->link($this->t('Edit'));
+    $action = $status == SAVED_UPDATED ? 'updated' : 'added';
+
+    drupal_set_message($this->t('Quickpay configuration %label has been %action.', ['%label' => $entity->label(), '%action' => $action]));
+    $this->logger('quickpay')->notice('Quickpay configuration %label has been %action.', array('%label' => $entity->label(), 'link' => $edit_link));
+
+    $form_state->setRedirect('quickpay.configuration_list');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $config = \Drupal::configFactory()->getEditable('quickpay.settings');
-    foreach ($form_state->getValues()['settings'] as $key => $value) {
-      $config->set($key, $value);
-    }
-    $config->save();
-    drupal_set_message(t('Settings saved.'), 'status');
+  protected function actions(array $form, FormStateInterface $form_state) {
+    $actions = parent::actions($form, $form_state);
+    $actions['submit']['#value'] = ($this->entity->isNew()) ? $this->t('Add configuration') : $this->t('Update configuration');
+    return $actions;
   }
 
   /**
@@ -312,5 +350,6 @@ class SettingsForm extends ConfigFormBase {
       ),
     );
   }
-
 }
+
+?>
