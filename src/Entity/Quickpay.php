@@ -10,6 +10,7 @@ use Drupal\quickpay\QuickpayInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\quickpay\QuickpayTransaction;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Defines the Quickpay entity.
@@ -226,14 +227,31 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Build the checksum from the request callback from quickpay.
    *
-   * @param object $request
-   *   The request data from Quickpay.
+   * @param string $request
+   *   The request in JSON format.
    *
    * @return string
    *   The checksum.
    */
   public function getChecksumFromRequest($request) {
     return hash_hmac("sha256", $request, $this->private_key);
+  }
+
+  /**
+   * Initialize a Quickpay instance from a request.
+   *
+   * @param object $request
+   *   Request content in an object.
+   *
+   * @return mixed
+   *   Instance of Quickpay on success, FALSE otherwise.
+   */
+  public static function loadFromRequest($request) {
+    if (isset($request->variables->quickpay_configuration_id)) {
+      $configuration_id = $request->variables->quickpay_configuration_id;
+      return self::load($configuration_id);
+    }
+    return FALSE;
   }
 
 }

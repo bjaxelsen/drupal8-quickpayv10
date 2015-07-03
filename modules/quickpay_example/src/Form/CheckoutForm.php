@@ -27,7 +27,7 @@ class CheckoutForm extends QuickpayCheckoutForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state, NodeInterface $node = NULL) {
     $this->quickpay = Quickpay::load('example');
-    $this->order_id = time(); //
+    $this->order_id = time();
 
     $node->set('field_example_order_id', $this->order_id);
     $node->save();

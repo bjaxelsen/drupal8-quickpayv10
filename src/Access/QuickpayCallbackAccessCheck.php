@@ -9,12 +9,12 @@ namespace Drupal\quickpay\Access;
 use Drupal\Core\Routing\Access\AccessInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\Core\Access\AccessResult;
+use Drupal\quickpay\Entity\Quickpay;
 
 /**
  * Checks access for displaying configuration translation page.
  */
 class QuickpayCallbackAccessCheck implements AccessInterface {
-
   /**
    * Access callback to check that the url parameters hasn't been tampered with.
    *
@@ -22,17 +22,20 @@ class QuickpayCallbackAccessCheck implements AccessInterface {
    *   The order ID from Quickpay.
    */
   public function access($order_id, Request $request) {
-    \Drupal::logger('quickpay')->notice(print_r($request->request, true));
-    return AccessResult::forbidden();
-/*
-    $quickpay = new Quickpay();
-
-    checksum = $quickpay->getChecksumFromRequest($request)
-    if (isset($_SERVER['HTTP_QUICKPAY_CHECKSUM_SHA256']) && strcmp($checksum, $_SERVER['HTTP_QUICKPAY_CHECKSUM_SHA256']) === 0) {
-      return AccessResult::allowed();
+    $content = json_decode($request->getContent());
+    $quickpay = Quickpay::loadFromRequest($content);
+    if ($quickpay) {
+      $checksum_calculated = $quickpay->getChecksumFromRequest($request->getContent());
+      $checksum_requested = $request->server->get('HTTP_QUICKPAY_CHECKSUM_SHA256');
+      if (!empty($checksum_requested) && strcmp($checksum_calculated, $checksum_requested) === 0) {
+        return AccessResult::allowed();
+      }
+      \Drupal::logger('quickpay')->error('Computed checksum does not match header checksum.');
     }
-    \Drupal::logger('quickpay')->log(RfcLogLevel::WARNING, 'Computed checksum does not match header checksum.');
-    return AccessResult::forbidden();*/
+    else {
+      \Drupal::logger('quickpay')->error('Could not load a Quickpay configuration from request.');
+    }
+    return AccessResult::forbidden();
   }
 }
 ?>
