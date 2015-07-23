@@ -12,3 +12,10 @@ quickpay_example.success:
     _title: 'Quickpay Example success'
   requirements:
     _permission: 'access content'
+quickpay_example.status:
+  path: '/quickpay_example/status/{node}'
+  defaults:
+    _controller: '\Drupal\quickpay_example\Controller\QuickpayExampleController::status'
+    _title: 'Quickpay Example status'
+  requirements:
+    _permission: 'access content'
