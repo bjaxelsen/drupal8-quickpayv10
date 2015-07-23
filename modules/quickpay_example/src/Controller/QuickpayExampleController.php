@@ -31,13 +31,12 @@ class QuickpayExampleController {
    * @return array
    */
   public function status(NodeInterface $node) {
-
     $quickpay = Quickpay::load('example');
     $transaction = new QuickpayTransaction($quickpay, $node->field_example_transaction_id->value);
     $transaction->status();
     return array(
       '#type' => 'markup',
-      '#markup' => '<p>Hej</p>',
+      '#markup' => '<p>Approved: ' . ($transaction->approved ? 'TRUE' : 'FALSE') . '</p><p>Message: ' . $transaction->qp_status_msg . '</p>',
     );
   }
 

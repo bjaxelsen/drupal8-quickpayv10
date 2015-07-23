@@ -10,12 +10,12 @@
 function quickpay_example_quickpay_callback($order_id, $transaction) {
   if ($transaction->approved) {
     // Load the order node and set the transaction ID.
-    $node = node_load($order_id);
+    $node = Node::load($order_id);
     if ($node) {
       $node->set('field_example_transaction_id', $transaction->id);
       $node->save();
     }
-    \Drupal::logger('quickpay_test')->info('Transaction not approved for order ID: !id', array('!id' => $order_id));
+    \Drupal::logger('quickpay_test')->info('Transaction approved for order ID: !id', array('!id' => $order_id));
   }
   else {
     \Drupal::logger('quickpay_test')->info('Transaction not approved for order ID: !id', array('!id' => $order_id));
