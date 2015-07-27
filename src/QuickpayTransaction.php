@@ -37,12 +37,9 @@ class QuickpayTransaction {
    *   array or object.
    *
    * @throws \Drupal\quickpay\QuickpayException
-   *   If the transaction is an array or object with information, and this could
-   *   not be parsed, an exception is thrown.
+   *   If the transaction could not be parsed.
    */
   public function __construct(Quickpay $quickpay, $transaction) {
-    // @TODO HERE;
-    \Drupal::logger('quickpay')->error(print_r($transaction, TRUE));
     $this->quickpay = $quickpay;
     // Check if the second parameter is the transaction itself, or the ID.
     if (is_object($transaction)) {
@@ -51,6 +48,11 @@ class QuickpayTransaction {
     elseif (is_numeric($transaction)) {
       $this->data['id'] = $transaction;
     }
+    else {
+      throw new QuickpayException(t('Transaction parameter must be either object or integer'));
+    }
+    // @TODO HERE;
+    \Drupal::logger('quickpay')->error(print_r($transaction, TRUE));
   }
 
   /**

@@ -37,11 +37,17 @@ class QuickpayExampleController {
    *   A renderable array.
    */
   public function status(NodeInterface $node) {
-    $quickpay = Quickpay::load('example');
-    $transaction = new QuickpayTransaction($quickpay, $node->field_example_transaction_id->value);
+    if ($node->field_example_transaction_id->value) {
+      $quickpay = Quickpay::load('example');
+      $transaction = new QuickpayTransaction($quickpay, $node->field_example_transaction_id->value);
+      $message = 'Approved: ' . ($transaction->approved ? 'TRUE' : 'FALSE') . '</p><p>Message: ' . $transaction->qp_status_msg;
+    }
+    else {
+      $message = 'Transaction has not been completed.';
+    }
     return array(
       '#type' => 'markup',
-      '#markup' => '<p>Approved: ' . ($transaction->approved ? 'TRUE' : 'FALSE') . '</p><p>Message: ' . $transaction->qp_status_msg . '</p>',
+      '#markup' => '<p>' . $message . '</p>',
     );
   }
 
