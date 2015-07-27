@@ -7,6 +7,7 @@
 namespace Drupal\quickpay\Entity;
 
 use Drupal\quickpay\QuickpayInterface;
+use Drupal\quickpay\QuickpayException;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Language\LanguageInterface;
 
@@ -98,7 +99,7 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   public $autofee = FALSE;
 
   /**
-   * Whether autocapture should be enabled.
+   * Whether auto capture should be enabled.
    */
   public $autocapture = FALSE;
 
@@ -151,27 +152,32 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Get information about an currency.
    *
-   * @param string $code
+   * @param $code
    *   The ISO 4217 currency code.
    *
-   * @return array
+   * @return mixed
    *   An array with the keys 'code' and 'multiplier'.
+   *
+   * @throws \Drupal\quickpay\QuickpayException
    */
   public function currencyInfo($code) {
     // If the currency is not known, throw an exception.
     if (!array_key_exists($code, self::BASE_CURRENCIES)) {
       throw new QuickpayException(t('Unknown currency code %currency', array('%currency' => $code)));
     }
-    return self::BASE_CURRENCIES[$code];
+    $base_currencies = self::BASE_CURRENCIES;
+    return $base_currencies[$code];
   }
 
   /**
    * Returns the amount adjusted by the multiplier for the currency.
    *
-   * @param int $amount
-   *   The amount.
+   * @param $amount
+   *
    * @param array $currency_info
    *   An currency_info() array.
+   *
+   * @return string
    */
   public function wireAmount($amount, array $currency_info) {
     return (function_exists('bcmul') ? bcmul($amount, $currency_info['multiplier']) : $amount * $currency_info['multiplier']);
@@ -179,11 +185,11 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
 
   /**
    * Reverses wireAmount().
-   *
-   * @param int $amount
-   *   The amount.
+   * 
+   * @param $amount
    * @param array $currency_info
    *   An currency_info() array.
+   * @return float|string
    */
   public function unwireAmount($amount, array $currency_info) {
     return (function_exists('bcdiv') ?
@@ -233,6 +239,34 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
    */
   public function getChecksumFromRequest($request) {
     return hash_hmac("sha256", $request, $this->private_key);
+  }
+
+  /**
+   * Request a QuickPay service.
+   *
+   * @param $url
+   *   The URL for the service. See http://tech.quickpay.net/api/services/?scope=merchant.
+   *
+   * @return string
+   *   The response in JSON.
+   *
+   * @throws \Drupal\quickpay\QuickpayException
+   */
+  public function request($url) {
+    $client = \Drupal::httpClient();
+    try {
+      $response = $client->get($url, [
+          'auth' => ['', $this->get('api_key')],
+          'headers' => [
+            'Accept-Version' => QUICKPAY_VERSION,
+          ],
+        ]
+      );
+      return $response->json();
+    }
+    catch (\Exception $e) {
+      throw new QuickpayException($e->getMessage());
+    }
   }
 
   /**

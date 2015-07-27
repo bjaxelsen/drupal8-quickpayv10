@@ -26,14 +26,14 @@ class CallbackController {
     $response = new Response();
     $response->setStatusCode(500);
     try {
-      $response = $arguments[1]->getContent();
-      // TODO REPLACE WITH DATA FORM REQUEST.
-      $quickpay = Quickpay::load('example');
-      $transaction = new QuickpayTransaction($quickpay);
-      $transaction->loadFromResponse($response);
-      // Invoke hook_quickpay_callback.
-      \Drupal::service('module_handler')->invokeAll('quickpay_callback', array($order_id, $transaction));
-      $response->setStatusCode(200);
+      $quickpay = Quickpay::loadFromRequest($request);
+      if ($quickpay) {
+        $transaction = new QuickpayTransaction($quickpay, $request->getContent());
+        // Invoke hook_quickpay_callback.
+        \Drupal::service('module_handler')
+          ->invokeAll('quickpay_callback', array($order_id, $transaction));
+        $response->setStatusCode(200);
+      }
     }
     catch (Exception $e) {
       \Drupal::logger('quickpay')->error('Could not create transaction from request: !request.', array('!request' => print_r($request, TRUE)));

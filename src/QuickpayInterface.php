@@ -20,5 +20,6 @@ interface QuickpayInterface extends ConfigEntityInterface {
   public function getPaymentMethods();
   public function getChecksum(array $data);
   public function getChecksumFromRequest($request);
+  public function request($url);
   public static function loadFromRequest($request);
 }
