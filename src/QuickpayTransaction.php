@@ -6,6 +6,8 @@
 
 namespace Drupal\quickpay;
 
+use Drupal\quickpay\Entity\Quickpay;
+
 /**
  * Abstracts a transaction.
  */
@@ -28,17 +30,19 @@ class QuickpayTransaction {
   /**
    * Create a transaction object.
    *
-   * @param $quickpay
+   * @param \Drupal\quickpay\Entity\Quickpay $quickpay
    *   The config for this transaction.
-   * @param $transaction
+   * @param mixed $transaction
    *   Either the ID of the transaction or information about the transaction as
    *   array or object.
    *
    * @throws \Drupal\quickpay\QuickpayException
+   *   If the transaction is an array or object with information, and this could
+   *   not be parsed, an exception is thrown.
    */
-  public function __construct($quickpay, $transaction) {
+  public function __construct(Quickpay $quickpay, $transaction) {
     // @TODO HERE;
-    \Drupal::logger('quickpay')->error(print_r($transaction, true));
+    \Drupal::logger('quickpay')->error(print_r($transaction, TRUE));
     $this->quickpay = $quickpay;
     // Check if the second parameter is the transaction itself, or the ID.
     if (is_object($transaction)) {
@@ -54,17 +58,20 @@ class QuickpayTransaction {
    *
    * The response can by example be from the callback or from a service call.
    *
-   * @param $response
+   * @param mixed $response
    *   Either array or object with properties.
    *
    * @throws \Drupal\quickpay\QuickpayException
+   *   If the response object could not be parsed.
    */
   private function loadFromResponse($response) {
     if (is_object($response)) {
       $response = (array) $response;
     }
     if (!is_array($response)) {
-      throw new QuickpayException(t('Transaction could not be loaded from response: !response', array('!response', print_r($response, TRUE))));
+      throw new QuickpayException(t('Transaction could not be loaded from response: !response', array(
+        '!response', print_r($response, TRUE),
+      )));
     }
     $operation = $response['operations'][0];
     $this->data['id'] = $response['id'];
@@ -85,8 +92,8 @@ class QuickpayTransaction {
   /**
    * Magic get method.
    *
-   * @param $property
-   *   The string name of the property to get.
+   * @param string $property
+   *   The name of the property to get.
    *
    * @return mixed
    *   The value of the property, or FALSE otherwise.
@@ -103,10 +110,14 @@ class QuickpayTransaction {
   }
 
   /**
+   * Load transaction details from QuickPay.
+   *
    * @throws \Drupal\quickpay\QuickpayException
+   *   If the request could not be loaded.
    */
   private function loadFromQuickpay() {
     $transaction = $this->quickpay->request('https://api.quickpay.net/payments/' . $this->id);
     $this->loadFromResponse($transaction);
   }
+
 }

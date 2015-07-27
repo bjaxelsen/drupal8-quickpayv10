@@ -352,6 +352,5 @@ class ConfigurationForm extends EntityForm {
       ),
     );
   }
-}
 
-?>
+}

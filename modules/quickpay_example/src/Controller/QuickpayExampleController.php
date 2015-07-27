@@ -16,6 +16,9 @@ use Drupal\quickpay\QuickpayTransaction;
 class QuickpayExampleController {
   /**
    * Content for the confirmation page.
+   *
+   * @return array
+   *   A renderable array.
    */
   public function success() {
     return array(
@@ -25,10 +28,13 @@ class QuickpayExampleController {
   }
 
   /**
-   *
+   * Display the status for the transaction.
    *
    * @param \Drupal\node\NodeInterface $node
+   *   The order node to check for.
+   *
    * @return array
+   *   A renderable array.
    */
   public function status(NodeInterface $node) {
     $quickpay = Quickpay::load('example');

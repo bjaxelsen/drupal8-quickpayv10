@@ -124,11 +124,10 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Get the language of the user.
    *
-   * @TODO: If LanguageInterface::LANGCODE_NOT_SPECIFIED the current users language should
-   * be used and not 'en'.
+   * @inheritdoc
    *
-   * @return string
-   *   The language code. Defaults to 'en'.
+   * @TODO: If LanguageInterface::LANGCODE_NOT_SPECIFIED the current users
+   * language should be used and not 'en'.
    */
   public function getLanguage() {
     $language_code = LanguageInterface::LANGCODE_NOT_SPECIFIED ? 'en' : $this->language;
@@ -152,13 +151,7 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Get information about an currency.
    *
-   * @param $code
-   *   The ISO 4217 currency code.
-   *
-   * @return mixed
-   *   An array with the keys 'code' and 'multiplier'.
-   *
-   * @throws \Drupal\quickpay\QuickpayException
+   * @inheritdoc
    */
   public function currencyInfo($code) {
     // If the currency is not known, throw an exception.
@@ -172,12 +165,7 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Returns the amount adjusted by the multiplier for the currency.
    *
-   * @param $amount
-   *
-   * @param array $currency_info
-   *   An currency_info() array.
-   *
-   * @return string
+   * @inheritdoc
    */
   public function wireAmount($amount, array $currency_info) {
     return (function_exists('bcmul') ? bcmul($amount, $currency_info['multiplier']) : $amount * $currency_info['multiplier']);
@@ -185,11 +173,8 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
 
   /**
    * Reverses wireAmount().
-   * 
-   * @param $amount
-   * @param array $currency_info
-   *   An currency_info() array.
-   * @return float|string
+   *
+   * @inheritdoc
    */
   public function unwireAmount($amount, array $currency_info) {
     return (function_exists('bcdiv') ?
@@ -199,6 +184,8 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
 
   /**
    * Return the proper cardtypelock for the accepted cards.
+   *
+   * @inheritdoc
    */
   public function getPaymentMethods() {
     if (is_array($this->accepted_cards)) {
@@ -214,13 +201,9 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Calculate the md5checksum for the request.
    *
-   * Read more at http://tech.quickpay.net/payments/hosted/#checksum.
+   * @see http://tech.quickpay.net/payments/hosted/#checksum
    *
-   * @param array $data
-   *   The data to POST to Quickpay.
-   *
-   * @return string
-   *   The checksum.
+   * @inheritdoc
    */
   public function getChecksum(array $data) {
     ksort($data);
@@ -231,11 +214,7 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Build the checksum from the request callback from quickpay.
    *
-   * @param string $request
-   *   The request in JSON format.
-   *
-   * @return string
-   *   The checksum.
+   * @inheritdoc
    */
   public function getChecksumFromRequest($request) {
     return hash_hmac("sha256", $request, $this->private_key);
@@ -244,13 +223,9 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Request a QuickPay service.
    *
-   * @param $url
-   *   The URL for the service. See http://tech.quickpay.net/api/services/?scope=merchant.
+   * @see http://tech.quickpay.net/api/services/?scope=merchant
    *
-   * @return string
-   *   The response in JSON.
-   *
-   * @throws \Drupal\quickpay\QuickpayException
+   * @inheritdoc
    */
   public function request($url) {
     $client = \Drupal::httpClient();
@@ -272,11 +247,7 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Initialize a Quickpay instance from a request.
    *
-   * @param object $request
-   *   Request content in an object.
-   *
-   * @return mixed
-   *   Instance of Quickpay on success, FALSE otherwise.
+   * @inheritdoc
    */
   public static function loadFromRequest($request) {
     if (isset($request->variables->quickpay_configuration_id)) {
