@@ -4,9 +4,11 @@
  * Module for testing/debugging the Quickpay payment window.
  */
 
+use Drupal\node\Entity\Node;
+
 /**
- * Implements hook_quickpay_callback().
- */
+ * Implements hook_quickpay_callback().
+ */
 function quickpay_example_quickpay_callback($order_id, $transaction) {
   if ($transaction->approved) {
     // Load the order node and set the transaction ID.

@@ -26,9 +26,10 @@ class CallbackController {
     $response = new Response();
     $response->setStatusCode(500);
     try {
-      $quickpay = Quickpay::loadFromRequest($request);
+      $content = json_decode($request->getContent());
+      $quickpay = Quickpay::loadFromRequest($content);
       if ($quickpay) {
-        $transaction = new QuickpayTransaction($quickpay, $request->getContent());
+        $transaction = new QuickpayTransaction($quickpay, $content);
         // Invoke hook_quickpay_callback.
         \Drupal::service('module_handler')
           ->invokeAll('quickpay_callback', array($order_id, $transaction));

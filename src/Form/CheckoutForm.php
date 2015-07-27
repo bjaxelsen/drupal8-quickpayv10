@@ -34,7 +34,7 @@ abstract class CheckoutForm extends FormBase {
     $data['version'] = QUICKPAY_VERSION;
     $data['merchant_id'] = $this->quickpay->merchant_id;
     $data['agreement_id'] = $this->quickpay->agreement_id;
-    $data['order_id'] = $this->quickpay->orderPrefix . $this->order_id;
+    $data['order_id'] = $this->order_id;
     // Ensure that Order number is at least 4 characters. Else Quickpay will
     // reject the request.
     if (strlen($data['order_id']) < 4) {

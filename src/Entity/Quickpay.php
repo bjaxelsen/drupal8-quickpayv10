@@ -250,11 +250,12 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
    * @inheritdoc
    */
   public static function loadFromRequest($request) {
-    if (isset($request->variables->quickpay_configuration_id)) {
-      $configuration_id = $request->variables->quickpay_configuration_id;
-      return self::load($configuration_id);
+    if (!isset($request->variables->quickpay_configuration_id)) {
+      \Drupal::logger('quickpay')->error(t('QuickPay configuration could not be loaded from request. No quickpay_configuration_id variable set.'));
+      return FALSE;
     }
-    return FALSE;
+    $configuration_id = $request->variables->quickpay_configuration_id;
+    return self::load($configuration_id);
   }
 
 }

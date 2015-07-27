@@ -42,7 +42,7 @@ class QuickpayTransaction {
   public function __construct(Quickpay $quickpay, $transaction) {
     $this->quickpay = $quickpay;
     // Check if the second parameter is the transaction itself, or the ID.
-    if (is_object($transaction)) {
+    if (is_object($transaction) || is_array($transaction)) {
       $this->loadFromResponse($transaction);
     }
     elseif (is_numeric($transaction)) {
@@ -51,8 +51,6 @@ class QuickpayTransaction {
     else {
       throw new QuickpayException(t('Transaction parameter must be either object or integer'));
     }
-    // @TODO HERE;
-    \Drupal::logger('quickpay')->error(print_r($transaction, TRUE));
   }
 
   /**
@@ -76,6 +74,9 @@ class QuickpayTransaction {
       )));
     }
     $operation = $response['operations'][0];
+    if (is_object($operation)) {
+      $operation = (array) $operation;
+    }
     $this->data['id'] = $response['id'];
     $this->data['approved'] = $operation['qp_status_code'] == '20000';
     $this->data['order_id'] = $response['order_id'];
