@@ -45,7 +45,7 @@ class QuickpayTransaction {
     if (is_object($transaction) || is_array($transaction)) {
       $this->loadFromResponse($transaction);
     }
-    elseif (is_numeric($transaction)) {
+    elseif (!empty($transaction)) {
       $this->data['id'] = $transaction;
     }
     else {
@@ -119,7 +119,7 @@ class QuickpayTransaction {
    *   If the request could not be loaded.
    */
   private function loadFromQuickpay() {
-    $transaction = $this->quickpay->request('https://api.quickpay.net/payments/' . $this->id);
+    $transaction = $this->quickpay->request('https://api.quickpay.net/payments/' . $this->data['id']);
     $this->loadFromResponse($transaction);
   }
 
