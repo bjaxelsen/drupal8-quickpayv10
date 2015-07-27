@@ -1,6 +1,0 @@
-settings:
-  version: 1.x
-  js:
-    quickpay.js: {}
-  dependencies:
-    - core/jquery
