@@ -110,9 +110,6 @@ class ConfigurationForm extends EntityForm {
         '3d-creditcard' => t('3D-Secure Creditcard'),
         'selected' => t('Selected payment methods'),
       ),
-      '#attached' => array(
-        'library' => array('quickpay/settings'),
-      ),
     );
 
     $options = array();
@@ -127,6 +124,11 @@ class ConfigurationForm extends EntityForm {
       '#title' => t('Select accepted cards'),
       '#default_value' => $entity->get('accepted_cards'),
       '#options' => $options,
+      '#states' => array(
+        'visible' => array(
+          ':input[name="method"]' => array('value' => 'selected'),
+        ),
+      ),
     );
 
     $form['autofee'] = array(
@@ -350,6 +352,5 @@ class ConfigurationForm extends EntityForm {
       ),
     );
   }
-}
 
-?>
+}

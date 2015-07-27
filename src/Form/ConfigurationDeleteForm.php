@@ -47,4 +47,3 @@ class ConfigurationDeleteForm extends EntityConfirmFormBase {
   }
 
 }
-?>

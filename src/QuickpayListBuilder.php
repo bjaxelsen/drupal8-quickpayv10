@@ -70,5 +70,3 @@ class QuickpayListBuilder extends ConfigEntityListBuilder {
   }
 
 }
-
-?>

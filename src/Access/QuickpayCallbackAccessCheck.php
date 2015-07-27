@@ -19,7 +19,12 @@ class QuickpayCallbackAccessCheck implements AccessInterface {
    * Access callback to check that the url parameters hasn't been tampered with.
    *
    * @param string $order_id
-   *   The order ID from Quickpay.
+   *   The order ID to check acess for.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The Symfony request.
+   *
+   * @return \Drupal\Core\Access\AccessResult
+   *   The result of the access check.
    */
   public function access($order_id, Request $request) {
     $content = json_decode($request->getContent());
@@ -37,5 +42,5 @@ class QuickpayCallbackAccessCheck implements AccessInterface {
     }
     return AccessResult::forbidden();
   }
+
 }
-?>

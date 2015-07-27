@@ -7,6 +7,7 @@
 namespace Drupal\quickpay\Entity;
 
 use Drupal\quickpay\QuickpayInterface;
+use Drupal\quickpay\QuickpayException;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Language\LanguageInterface;
 
@@ -98,7 +99,7 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   public $autofee = FALSE;
 
   /**
-   * Whether autocapture should be enabled.
+   * Whether auto capture should be enabled.
    */
   public $autocapture = FALSE;
 
@@ -123,11 +124,10 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Get the language of the user.
    *
-   * @TODO: If LanguageInterface::LANGCODE_NOT_SPECIFIED the current users language should
-   * be used and not 'en'.
+   * @inheritdoc
    *
-   * @return string
-   *   The language code. Defaults to 'en'.
+   * @TODO: If LanguageInterface::LANGCODE_NOT_SPECIFIED the current users
+   * language should be used and not 'en'.
    */
   public function getLanguage() {
     $language_code = LanguageInterface::LANGCODE_NOT_SPECIFIED ? 'en' : $this->language;
@@ -151,27 +151,21 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Get information about an currency.
    *
-   * @param string $code
-   *   The ISO 4217 currency code.
-   *
-   * @return array
-   *   An array with the keys 'code' and 'multiplier'.
+   * @inheritdoc
    */
   public function currencyInfo($code) {
     // If the currency is not known, throw an exception.
     if (!array_key_exists($code, self::BASE_CURRENCIES)) {
       throw new QuickpayException(t('Unknown currency code %currency', array('%currency' => $code)));
     }
-    return self::BASE_CURRENCIES[$code];
+    $base_currencies = self::BASE_CURRENCIES;
+    return $base_currencies[$code];
   }
 
   /**
    * Returns the amount adjusted by the multiplier for the currency.
    *
-   * @param int $amount
-   *   The amount.
-   * @param array $currency_info
-   *   An currency_info() array.
+   * @inheritdoc
    */
   public function wireAmount($amount, array $currency_info) {
     return (function_exists('bcmul') ? bcmul($amount, $currency_info['multiplier']) : $amount * $currency_info['multiplier']);
@@ -180,10 +174,7 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Reverses wireAmount().
    *
-   * @param int $amount
-   *   The amount.
-   * @param array $currency_info
-   *   An currency_info() array.
+   * @inheritdoc
    */
   public function unwireAmount($amount, array $currency_info) {
     return (function_exists('bcdiv') ?
@@ -193,6 +184,8 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
 
   /**
    * Return the proper cardtypelock for the accepted cards.
+   *
+   * @inheritdoc
    */
   public function getPaymentMethods() {
     if (is_array($this->accepted_cards)) {
@@ -208,13 +201,9 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Calculate the md5checksum for the request.
    *
-   * Read more at http://tech.quickpay.net/payments/hosted/#checksum.
+   * @see http://tech.quickpay.net/payments/hosted/#checksum
    *
-   * @param array $data
-   *   The data to POST to Quickpay.
-   *
-   * @return string
-   *   The checksum.
+   * @inheritdoc
    */
   public function getChecksum(array $data) {
     ksort($data);
@@ -225,31 +214,48 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * Build the checksum from the request callback from quickpay.
    *
-   * @param string $request
-   *   The request in JSON format.
-   *
-   * @return string
-   *   The checksum.
+   * @inheritdoc
    */
   public function getChecksumFromRequest($request) {
     return hash_hmac("sha256", $request, $this->private_key);
   }
 
   /**
+   * Request a QuickPay service.
+   *
+   * @see http://tech.quickpay.net/api/services/?scope=merchant
+   *
+   * @inheritdoc
+   */
+  public function request($url) {
+    $client = \Drupal::httpClient();
+    try {
+      $response = $client->get($url, [
+          'auth' => ['', $this->get('api_key')],
+          'headers' => [
+            'Accept-Version' => QUICKPAY_VERSION,
+          ],
+        ]
+      );
+      return $response->json();
+    }
+    catch (\Exception $e) {
+      throw new QuickpayException($e->getMessage());
+    }
+  }
+
+  /**
    * Initialize a Quickpay instance from a request.
    *
-   * @param object $request
-   *   Request content in an object.
-   *
-   * @return mixed
-   *   Instance of Quickpay on success, FALSE otherwise.
+   * @inheritdoc
    */
   public static function loadFromRequest($request) {
-    if (isset($request->variables->quickpay_configuration_id)) {
-      $configuration_id = $request->variables->quickpay_configuration_id;
-      return self::load($configuration_id);
+    if (!isset($request->variables->quickpay_configuration_id)) {
+      \Drupal::logger('quickpay')->error(t('QuickPay configuration could not be loaded from request. No quickpay_configuration_id variable set.'));
+      return FALSE;
     }
-    return FALSE;
+    $configuration_id = $request->variables->quickpay_configuration_id;
+    return self::load($configuration_id);
   }
 
 }

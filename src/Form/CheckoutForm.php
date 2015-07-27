@@ -34,7 +34,7 @@ abstract class CheckoutForm extends FormBase {
     $data['version'] = QUICKPAY_VERSION;
     $data['merchant_id'] = $this->quickpay->merchant_id;
     $data['agreement_id'] = $this->quickpay->agreement_id;
-    $data['order_id'] = $this->quickpay->orderPrefix . $this->order_id;
+    $data['order_id'] = $this->order_id;
     // Ensure that Order number is at least 4 characters. Else Quickpay will
     // reject the request.
     if (strlen($data['order_id']) < 4) {
@@ -96,22 +96,22 @@ abstract class CheckoutForm extends FormBase {
   private function validateImplementation() {
     // Make sure the required variables are available.
     if (!isset($this->quickpay)) {
-      throw new QuickpayException(t('Concrete must define "order_id".'));
+      throw new QuickpayException(t('Form must define "order_id".'));
     }
     if (!isset($this->order_id)) {
-      throw new QuickpayException(t('Concrete must define "order_id".'));
+      throw new QuickpayException(t('Form must define "order_id".'));
     }
     if (!isset($this->amount)) {
-      throw new QuickpayException(t('Concrete must define "amount".'));
+      throw new QuickpayException(t('Form must define "amount".'));
     }
     if (!isset($this->currency)) {
-      throw new QuickpayException(t('Concrete must define "currency".'));
+      throw new QuickpayException(t('Form must define "currency".'));
     }
     if (!isset($this->continue_url)) {
-      throw new QuickpayException(t('Concrete must define "continue_url".'));
+      throw new QuickpayException(t('Form must define "continue_url".'));
     }
     if (!isset($this->cancel_url)) {
-      throw new QuickpayException(t('Concrete must define "cancel_url".'));
+      throw new QuickpayException(t('Form must define "cancel_url".'));
     }
   }
 
