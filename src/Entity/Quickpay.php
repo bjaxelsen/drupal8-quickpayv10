@@ -109,19 +109,6 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   public $debug = FALSE;
 
   /**
-   * A map of currencies know by the module.
-   */
-  const BASE_CURRENCIES = array(
-    'DKK' => array('code' => 'DKK', 'multiplier' => 100),
-    'USD' => array('code' => 'USD', 'multiplier' => 100),
-    'EUR' => array('code' => 'EUR', 'multiplier' => 100),
-    'GBP' => array('code' => 'GBP', 'multiplier' => 100),
-    'SEK' => array('code' => 'SEK', 'multiplier' => 100),
-    'NOK' => array('code' => 'NOK', 'multiplier' => 100),
-    'ISK' => array('code' => 'ISK', 'multiplier' => 100),
-  );
-
-  /**
    * Get the language of the user.
    *
    * @inheritdoc
@@ -155,11 +142,28 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
    */
   public function currencyInfo($code) {
     // If the currency is not known, throw an exception.
-    if (!array_key_exists($code, self::BASE_CURRENCIES)) {
+    if (!array_key_exists($code, $this->getBaseCurrencies())) {
       throw new QuickpayException(t('Unknown currency code %currency', array('%currency' => $code)));
     }
-    $base_currencies = self::BASE_CURRENCIES;
+    $base_currencies = $this->getBaseCurrencies();
     return $base_currencies[$code];
+  }
+
+  /**
+   * A map of currencies know by the module.
+   *
+   * @inheritdoc
+   */
+  private function getBaseCurrencies() {
+    return array(
+      'DKK' => array('code' => 'DKK', 'multiplier' => 100),
+      'USD' => array('code' => 'USD', 'multiplier' => 100),
+      'EUR' => array('code' => 'EUR', 'multiplier' => 100),
+      'GBP' => array('code' => 'GBP', 'multiplier' => 100),
+      'SEK' => array('code' => 'SEK', 'multiplier' => 100),
+      'NOK' => array('code' => 'NOK', 'multiplier' => 100),
+      'ISK' => array('code' => 'ISK', 'multiplier' => 100),
+    );
   }
 
   /**
