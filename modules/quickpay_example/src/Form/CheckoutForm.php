@@ -7,14 +7,16 @@
 namespace Drupal\quickpay_example\Form;
 
 use Drupal\quickpay\Form\CheckoutForm as QuickpayCheckoutForm;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
 use Drupal\quickpay\Entity\Quickpay;
+use Drupal\Core\Url;
 
 /**
  * Checkout form.
  */
-class CheckoutForm extends QuickpayCheckoutForm {
+class CheckoutForm extends QuickpayCheckoutForm implements ContainerInjectionInterface {
   /**
    * {@inheritdoc}
    */
@@ -27,7 +29,8 @@ class CheckoutForm extends QuickpayCheckoutForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state, NodeInterface $node = NULL) {
     $this->quickpay = Quickpay::load('example');
-    $this->order_id = $node->id();
+    $this->module = 'quickpay_example';
+    $this->order_id = time();
     $this->amount = 1;
     $this->currency = 'DKK';
     $this->continue_url =  Url::fromRoute('quickpay_example.success', array(), array('absolute' => TRUE))->toString();

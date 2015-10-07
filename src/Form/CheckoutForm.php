@@ -54,6 +54,7 @@ abstract class CheckoutForm extends FormBase {
     // Add the ID of the Quickpay configuration as a custom variable to load it
     // in the response.
     $data['variables[quickpay_configuration_id]'] = $this->quickpay->id;
+    $data['variables[quickpay_configuration_module]'] = $this->module;
     // Add any custom fields.
     if (isset($this->_custom) && is_array($this->_custom)) {
       foreach ($this->_custom as $key => $value) {
@@ -94,9 +95,11 @@ abstract class CheckoutForm extends FormBase {
    * Checking if the required properties has been set.
    */
   private function validateImplementation() {
-    // Make sure the required variables are available.
+    if (!isset($this->module)) {
+      throw new QuickpayException(t('Form must define "module".'));
+    }
     if (!isset($this->quickpay)) {
-      throw new QuickpayException(t('Form must define "order_id".'));
+      throw new QuickpayException(t('Form must define "quickpay configuration".'));
     }
     if (!isset($this->order_id)) {
       throw new QuickpayException(t('Form must define "order_id".'));
