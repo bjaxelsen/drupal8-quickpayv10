@@ -1,5 +1,5 @@
 {
-  "name": "drupal/quickpay"
+  "name": "drupal/quickpay",
   "description": "QuickPay payment gateway",
   "type": "drupal-module",
   "license": "MIT"
