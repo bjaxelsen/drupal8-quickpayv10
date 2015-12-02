@@ -6,6 +6,9 @@
 
 namespace Drupal\quickpay\Controller;
 
+use Drupal\Core\Controller\ControllerBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\quickpay\Entity\Quickpay;
 use Drupal\quickpay\QuickpayTransaction;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,12 +18,32 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Endpoints for the routes defined.
  */
-class CallbackController {
+class CallbackController extends ControllerBase {
+
+  /**
+   * Constructor.
+   *
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   */
+  public function __construct(ModuleHandlerInterface $module_handler) {
+    $this->moduleHandler = $module_handler;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('module_handler')
+    );
+  }
+
   /**
    * Callback from Quickpay.
    *
-   * @param string $order_id
-   *   The order ID from Quickpay.
+   * @param $order_id
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   * @return \Symfony\Component\HttpFoundation\Response
    */
   public function callback($order_id, Request $request) {
     $response = new Response();
@@ -31,16 +54,14 @@ class CallbackController {
       if ($quickpay) {
         $transaction = new QuickpayTransaction($quickpay, $content);
         // Invoke hook_quickpay_callback.
-        \Drupal::service('module_handler')
-          ->invokeAll('quickpay_callback', array($order_id, $transaction));
+        $this->moduleHandler()->invokeAll('quickpay_callback', array($order_id, $transaction));
         $response->setStatusCode(200);
       }
     }
     catch (Exception $e) {
       \Drupal::logger('quickpay')->error('Could not create transaction from request: !request.', array('!request' => print_r($request, TRUE)));
     }
-    $response->send();
-    exit;
+    return $response;
   }
 
 }
