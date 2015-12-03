@@ -54,7 +54,7 @@ class CallbackController extends ControllerBase {
       if ($quickpay) {
         $transaction = new QuickpayTransaction($quickpay, $content);
         // Invoke hook_quickpay_callback.
-        $this->moduleHandler()->invokeAll('quickpay_callback', array($order_id, $transaction));
+        $this->moduleHandler->invokeAll('quickpay_callback', array($order_id, $transaction));
         $response->setStatusCode(200);
       }
     }
