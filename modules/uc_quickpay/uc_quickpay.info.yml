@@ -1,0 +1,9 @@
+type: module
+name: 'Ubercart Quickpay payment'
+description: 'Provides a Quickpay payment method for Ubercart.'
+package: 'QuickPay payment gateway'
+core: '8.x'
+version: '1.0'
+dependencies:
+  - quickpay
+  - uc_payment
