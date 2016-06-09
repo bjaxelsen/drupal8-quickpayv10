@@ -39,7 +39,7 @@ interface QuickpayInterface extends ConfigEntityInterface {
   /**
    * Returns the amount adjusted by the multiplier for the currency.
    *
-   * @param int $amount
+   * @param float $amount
    *   The amount to wire.
    * @param array $currency_info
    *   An currency_info() array.
@@ -71,7 +71,18 @@ interface QuickpayInterface extends ConfigEntityInterface {
   public function getPaymentMethods();
 
   /**
-   * Calculate the md5checksum for the request.
+   * Calculate the md5checksum for the API request.
+   *
+   * @param array $data
+   *   The data to send in the API request to Quickpay.
+   *
+   * @return string
+   *   The checksum.
+   */
+  public function getApiChecksum(array $data);
+
+  /**
+   * Calculate the md5checksum for the payment window form
    *
    * @param array $data
    *   The data to POST to Quickpay.
@@ -79,7 +90,7 @@ interface QuickpayInterface extends ConfigEntityInterface {
    * @return string
    *   The checksum.
    */
-  public function getChecksum(array $data);
+  public function getPaymentWindowChecksum(array $data);
 
   /**
    * Build the checksum from the request callback from quickpay.

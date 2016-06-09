@@ -59,20 +59,28 @@ class ConfigurationForm extends EntityForm {
       '#required' => TRUE,
     );
 
-    $form['agreement_id'] = array(
+    $form['payment_window_agreement_id'] = array(
       '#type' => 'textfield',
-      '#title' => t('Agreement ID'),
-      '#description' => t('This is the Agreement ID from the Quickpay manager.'),
-      '#default_value' => $entity->get('agreement_id'),
+      '#title' => t('Payment window agreement ID'),
+      '#description' => t('This is the Agreement ID for the payment window user from the Quickpay manager.'),
+      '#default_value' => $entity->get('payment_window_agreement_id'),
+      '#required' => TRUE,
+    );
+
+    $form['payment_window_api_key'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Payment window API key'),
+      '#description' => t('This is the API key for the payment window user from the Quickpay manager.'),
+      '#default_value' => $entity->get('payment_window_api_key'),
       '#required' => TRUE,
     );
 
     $form['api_key'] = array(
       '#type' => 'textfield',
-      '#title' => t('API'),
-      '#description' => t('This is the API key from the Quickpay manager.'),
+      '#title' => t('API user key'),
+      '#description' => t('This is the API key for requests directly to Quickay (from the Quickpay manager).'),
       '#default_value' => $entity->get('api_key'),
-      '#required' => TRUE,
+      '#required' => FALSE,
     );
 
     $form['private_key'] = array(
@@ -99,7 +107,7 @@ class ConfigurationForm extends EntityForm {
       '#default_value' => $entity->get('language'),
     );
 
-    $form['method'] = array(
+    $form['payment_method'] = array(
       '#type' => 'radios',
       '#id' => 'quickpay-method',
       '#title' => t('Accepted payment methods'),
@@ -126,7 +134,7 @@ class ConfigurationForm extends EntityForm {
       '#options' => $options,
       '#states' => array(
         'visible' => array(
-          ':input[name="method"]' => array('value' => 'selected'),
+          ':input[name="payment_method"]' => array('value' => 'selected'),
         ),
       ),
     );
@@ -166,17 +174,24 @@ class ConfigurationForm extends EntityForm {
     $entity->set('label', trim($entity->label()));
     $entity->set('description', $form_state->getValue('description'));
     $entity->set('merchant_id', $form_state->getValue('merchant_id'));
-    $entity->set('agreement_id', $form_state->getValue('agreement_id'));
+    $entity->set('payment_window_agreement_id', $form_state->getValue('payment_window_agreement_id'));
     $entity->set('api_key', $form_state->getValue('api_key'));
     $entity->set('private_key', $form_state->getValue('private_key'));
     $entity->set('order_prefix', $form_state->getValue('order_prefix'));
     $entity->set('language', $form_state->getValue('language'));
-    $entity->set('method', $form_state->getValue('method'));
-    if ($form_state->getValue('method') === 'selected') {
-      $entity->set('accepted_cards', $form_state->getValue('accepted_cards'));
+    $entity->set('payment_method', $form_state->getValue('payment_method'));
+    if ($form_state->getValue('payment_method') === 'selected') {
+      $accepted_cards = $form_state->getValue('accepted_cards');
+      // Get rid of 0 values
+      foreach ($accepted_cards as $key => $value) {
+        if (empty($value)) {
+          unset($accepted_cards[$key]);
+        }
+      }
+      $entity->set('accepted_cards', $accepted_cards);
     }
     else {
-      $entity->set('accepted_cards', array($form_state->getValue('method')));
+      $entity->set('accepted_cards', array($form_state->getValue('payment_method')));
     }
     $entity->set('autofee', $form_state->getValue('autofee'));
     $entity->set('debug', $form_state->getValue('debug'));

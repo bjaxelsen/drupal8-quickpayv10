@@ -22,6 +22,37 @@ use Drupal\quickpay\QuickpayException;
  */
 abstract class CheckoutForm extends FormBase {
   /**
+   * @var \Drupal\quickpay\Entity\Quickpay Quickpay instance
+   */
+  public $quickpay;
+
+  /**
+   * @var int Order ID
+   */
+  public $order_id;
+
+  /**
+   * @var float the amount
+   */
+  public $amount;
+
+  /**
+   * @var string Order currency
+   */
+  public $currency;
+
+  /**
+   * @var string URL to continue to after succesfull payment in Quickpay payment gateway
+   */
+  public $continue_url;
+
+  /**
+   * @var string URL to return to if user cancels payment process
+   */
+  public $cancel_url;
+
+
+  /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
@@ -33,7 +64,7 @@ abstract class CheckoutForm extends FormBase {
     // Required variables.
     $data['version'] = QUICKPAY_VERSION;
     $data['merchant_id'] = $this->quickpay->merchant_id;
-    $data['agreement_id'] = $this->quickpay->agreement_id;
+    $data['agreement_id'] = $this->quickpay->payment_window_agreement_id;
     $data['order_id'] = $this->order_id;
     // Ensure that Order number is at least 4 characters. Else Quickpay will
     // reject the request.
@@ -61,7 +92,7 @@ abstract class CheckoutForm extends FormBase {
       }
     }
     // Build the checksum.
-    $data['checksum'] = $this->quickpay->getChecksum($data);
+    $data['checksum'] = $this->quickpay->getPaymentWindowChecksum($data);
     // Add all data elements as hidden input fields.
     foreach ($data as $name => $value) {
       $form[$name] = array('#type' => 'hidden', '#value' => $value);
@@ -96,7 +127,7 @@ abstract class CheckoutForm extends FormBase {
   private function validateImplementation() {
     // Make sure the required variables are available.
     if (!isset($this->quickpay)) {
-      throw new QuickpayException(t('Form must define "order_id".'));
+      throw new QuickpayException(t('Form must define "quickpay".'));
     }
     if (!isset($this->order_id)) {
       throw new QuickpayException(t('Form must define "order_id".'));

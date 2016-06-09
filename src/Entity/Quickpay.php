@@ -10,12 +10,13 @@ use Drupal\quickpay\QuickpayInterface;
 use Drupal\quickpay\QuickpayException;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Language\LanguageInterface;
+use QuickPay\QuickPay as QuickPayClient;
 
 /**
  * Defines the Quickpay entity.
  *
  * @ConfigEntityType(
- *   id = "configuration",
+ *   id = "quickpay_config",
  *   label = @Translation("Quickpay configuration"),
  *   module = "quickpay",
  *   config_prefix = "configuration",
@@ -61,10 +62,15 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   /**
    * The agreement ID from Quickpay.
    */
-  public $agreement_id;
+  public $payment_window_agreement_id;
 
   /**
-   * The API key from Quickpay.
+   * API key for payment window
+   */
+  public $payment_window_api_key;
+  
+  /**
+   * The API key for Quickpay service.
    */
   public $api_key;
 
@@ -203,16 +209,32 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   }
 
   /**
-   * Calculate the md5checksum for the request.
-   *
-   * @see http://tech.quickpay.net/payments/hosted/#checksum
+   * Calculate checksum for payment form
+   * 
+   * @inheritdoc
+   */
+  public function getPaymentWindowChecksum(array $data) {
+    return $this->getChecksum($data, $this->payment_window_api_key);
+  }
+
+  /**
+   * Calculate checksum for API calls
    *
    * @inheritdoc
    */
-  public function getChecksum(array $data) {
+  public function getApiChecksum(array $data) {
+    return $this->getChecksum($data, $this->api_key);
+  }
+
+  /**
+   * Calculate the md5checksum using a given key
+   *
+   * @see http://tech.quickpay.net/payments/form/
+   */
+  public function getChecksum(array $data, $key) {
     ksort($data);
     $base = implode(" ", $data);
-    return hash_hmac("sha256", $base, $this->api_key);
+    return hash_hmac("sha256", $base, $key);
   }
 
   /**

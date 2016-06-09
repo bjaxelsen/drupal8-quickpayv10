@@ -2,5 +2,5 @@ id: example
 label: Example configuration
 description: Configuration used for the Quickpay Example module
 merchant_id: 1234
-agreement_id: 1234
-api_key: 1234
+payment_window_agreement_id: 1234
+payment_window_api_key: 1234

@@ -8,28 +8,28 @@ quickpay.callback:
 quickpay.configuration_list:
   path: '/admin/config/quickpay'
   defaults:
-    _entity_list: 'configuration'
+    _entity_list: 'quickpay_config'
     _title: 'Quickpay configurations'
   requirements:
     _permission: 'administer site configuration'
 quickpay.configuration_add:
   path: '/admin/config/quickpay/configuration/add'
   defaults:
-    _entity_form: configuration.default
+    _entity_form: quickpay_config.default
     _title: 'Add configuration'
   requirements:
     _permission: 'administer site configuration'
-entity.configuration.delete_form:
-  path: '/admin/config/quickpay/manage/{configuration}/delete'
+entity.quickpay_config.delete_form:
+  path: '/admin/config/quickpay/manage/{quickpay_config}/delete'
   defaults:
-    _entity_form: configuration.delete
+    _entity_form: quickpay_config.delete
     _title: 'Delete configuration'
   requirements:
     _permission: 'administer site configuration'
-entity.configuration.edit_form:
-  path: '/admin/config/quickpay/manage/{configuration}'
+entity.quickpay_config.edit_form:
+  path: '/admin/config/quickpay/manage/{quickpay_config}'
   defaults:
-    _entity_form: configuration.default
+    _entity_form: quickpay_config.default
     _title: 'Edit configuration'
   requirements:
     _permission: 'administer site configuration'

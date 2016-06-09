@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the uc_quickpay module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function uc_quickpay_schema() {
+  $schema = [];
+
+  $schema['uc_quickpay_capture'] = [
+    'description' => 'Stores capture information.',
+    'fields' => [
+      'payment_id' => [
+        'description' => 'Primary key: the Quickpay payment ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'order_id' => [
+        'description' => 'The {uc_orders}.order_id.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'capture_date' => [
+        'description' => 'The Unix timestamp of the capture.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'amount' => [
+        'description' => 'The captured amount.',
+        'type' => 'numeric',
+        'precision' => 16,
+        'scale' => 5,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'indexes' => [
+      'order_id' => ['order_id'],
+    ],
+    'primary key' => ['payment_id'],
+    'foreign keys' => [
+      'uc_orders' => [
+        'table' => 'uc_orders',
+        'columns' => ['order_id' => 'order_id'],
+      ],
+    ],
+  ];
+
+  return $schema;
+}
