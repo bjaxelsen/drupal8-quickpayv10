@@ -58,6 +58,7 @@ abstract class CheckoutForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     // Make sure all the required properties are set on the form.
     $this->validateImplementation();
+
     // Build the form.
     $form['#method'] = 'POST';
     $form['#action'] = 'https://payment.quickpay.net';
@@ -71,6 +72,7 @@ abstract class CheckoutForm extends FormBase {
     if (strlen($data['order_id']) < 4) {
       $data['order_id'] = $this->quickpay->order_prefix . substr('0000' . $this->order_id, -4 + strlen($this->quickpay->order_prefix));
     }
+    // Amount needs to manipulated:
     $currency_info = $this->quickpay->currencyInfo($this->currency);
     $data['amount'] = $this->quickpay->wireAmount($this->amount, $currency_info);
     $data['currency'] = $currency_info['code'];

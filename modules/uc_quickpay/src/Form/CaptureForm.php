@@ -68,7 +68,7 @@ class CaptureForm extends FormBase {
    * @param string $quickpay_config
    *   The ID of the Quickpay configuration to use
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $order_id = NULL, $payment_id = NULL, $amount = NULL, $quickpay_config = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $order_id = NULL, $payment_id = NULL, $amount = NULL, $currency = NULL, $quickpay_config = NULL) {
     $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Capture'),
@@ -80,6 +80,10 @@ class CaptureForm extends FormBase {
     $form['payment_id'] = [
       '#type' => 'value',
       '#value' => $payment_id
+    ];
+    $form['currency'] = [
+      '#type' => 'value',
+      '#value' => $currency
     ];
     $form['amount'] = [
       '#type' => 'value',
@@ -106,12 +110,14 @@ class CaptureForm extends FormBase {
     $quickpay_instance = Quickpay::load($form['quickpay_config']['#value']);
     try {
       $client = new QuickpayClient(":{$quickpay_instance->api_key}");
+      // Amount needs to manipulated:
+      $currency_info = $quickpay_instance->currencyInfo($form['currency']['#value']);
       // Create payment
-      $form = array(
-        'amount' => $quickpay_instance->wireAmount($form['amount']['#value'])
+      $post_quickpay_form = array(
+        'amount' => $quickpay_instance->wireAmount($form['amount']['#value'], $currency_info)
       );
-      $capture = $client->request->post('/payments/' . $form['payment_id']['#value'] . '/capture', $form);
-      $status = $capture->httpStatus();
+      $capture = $client->request->post('/payments/' . $form['payment_id']['#value'] . '/capture', $post_quickpay_form);
+      $status = $capture->http_status();
 
       if ($status == 202) {
         // Successful request
@@ -121,9 +127,8 @@ class CaptureForm extends FormBase {
           ->fields([
             'payment_id' => $form['payment_id']['#value'],
             'order_id' => $form['order_id']['#value'],
-            'capture_date' => time(),
+            'capture_timestamp' => time(),
             'amount' => $form['amount']['#value'],
-            'time' => time(),
           ])
           ->execute();
         drupal_set_message(t('Capture succesful.'));

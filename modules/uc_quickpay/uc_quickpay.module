@@ -6,13 +6,14 @@
  */
 
 use Drupal\uc_order\Entity\Order;
+use Drupal\Core\Link;
 
 /**
 * Implements hook_quickpay_callback().
 */
 function uc_quickpay_quickpay_callback($order_id, $transaction) {
   \Drupal::logger('uc_quickpay')
-    ->info('Transaction callback for order ID: !id', array('!id' => $order_id));
+    ->info('Transaction callback for order ID: @id', array('@id' => $order_id));
   $order = Order::load($order_id);
   if ($transaction->approved) {
     // Load the order and set the transaction ID.
@@ -28,7 +29,7 @@ function uc_quickpay_quickpay_callback($order_id, $transaction) {
           ]
         );
     }
-    $comment = $this->t('Quickpay transaction ID: @txn_id', ['@txn_id' => $transaction->id]);
+    $comment = t('Quickpay transaction ID: @txn_id', ['@txn_id' => $transaction->id]);
     uc_payment_enter($order_id, 'quickpay', $transaction->amount, $order->getOwnerId(), $transaction, $comment);
     uc_order_comment_save(
       $order_id,
@@ -36,7 +37,14 @@ function uc_quickpay_quickpay_callback($order_id, $transaction) {
       t('Quickpay reported a payment/authorization of @amount @currency.', [
         '@amount' => uc_currency_format($transaction->amount, FALSE),
         '@currency' => $transaction->currency
-      ])
+      ]),
+      'admin',
+      'payment_received'
     );
+    \Drupal::logger('uc_quickpay')
+      ->info('Done comments.');
+  }
+  else {
+    \Drupal::logger('quickpay')->warning('Not-approved transaction from Quickpay: @transaction.', array('@transaction' => print_r($transaction, TRUE)));
   }
 }

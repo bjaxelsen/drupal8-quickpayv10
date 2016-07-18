@@ -81,7 +81,13 @@ class QuickpayTransaction {
     $this->data['approved'] = $operation['qp_status_code'] == '20000';
     $this->data['order_id'] = $response['order_id'];
     $this->data['type'] = $operation['type'];
-    $this->data['amount'] = $operation['amount'];
+
+    // Currency amounts are handled by a multiplier in Quickpay (see
+    // Drupal\quickpay\Form\CheckoutForm), we need to convert the amount back
+    // again
+    $currency_info = $this->quickpay->currencyInfo($response['currency']);
+    $this->data['amount'] = $this->quickpay->unwireAmount($operation['amount'], $currency_info);
+    
     $this->data['currency'] = $response['currency'];
     $this->data['created'] = $response['created_at'];
     $this->data['qp_status_code'] = $operation['qp_status_code'];
@@ -89,6 +95,7 @@ class QuickpayTransaction {
     $this->data['acquirer'] = $response['acquirer'];
     $this->data['aq_status_code'] = $operation['aq_status_code'];
     $this->data['aq_status_msg'] = $operation['aq_status_msg'];
+    $this->data['test_mode'] = isset($operation['test_mode']) ? $operation['test_mode'] : FALSE;
     $this->loaded = TRUE;
   }
 

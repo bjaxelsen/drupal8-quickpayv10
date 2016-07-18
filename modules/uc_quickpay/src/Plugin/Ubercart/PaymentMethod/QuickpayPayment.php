@@ -94,19 +94,20 @@ class QuickpayPayment extends PaymentMethodPluginBase implements OffsitePaymentM
     $this->extractLastPayment($order->id());
 
     $captures = db_select('uc_quickpay_capture')
-      ->fields('uc_quickpay_capture', array('amount', 'capture_date'))
+      ->fields('uc_quickpay_capture', array('amount', 'capture_timestamp'))
       ->condition('payment_id', $this->lastPaymentId)
       ->condition('order_id', $order->id())
-      ->execute();
+      ->execute()
+      ->fetchAll();
 
     $capture_amount = 0;
 
-    $capture_date = [];
+    $capture_date = FALSE;
 
     if ($captures) {
       $capture = current($captures);
       $capture_amount = $capture->amount;
-      $capture_date =  \Drupal::service('date.formatter')->format($capture->capture_date);
+      $capture_date =  \Drupal::service('date.formatter')->format($capture->capture_timestamp);
     }
 
     if (empty($capture_amount) && !empty($this->lastPaymentAmount)) {
@@ -115,11 +116,12 @@ class QuickpayPayment extends PaymentMethodPluginBase implements OffsitePaymentM
         $order->id(),
         $this->lastPaymentId,
         $this->lastPaymentAmount,
+        $order->getCurrency(),
         $this->configuration['quickpay_config']
       );
     }
-    elseif (!empty($date_text)) {
-      $build['captureinfo'] = ['#markup' => $this->t('Captured @date', ['@date' => $date_text])];
+    elseif ($capture_date) {
+      $build['captureinfo'] = ['#markup' => $this->t('Captured @date', ['@date' => $capture_date])];
     }
     else {
       $build = [];
@@ -154,9 +156,11 @@ class QuickpayPayment extends PaymentMethodPluginBase implements OffsitePaymentM
         // @todo check this
         // Check if we have an ID stored in the data object (this will
         // be the Quickpay payment ID
-        if (isset($payment->data->id)) {
-          $this->lastPaymentAmount = (float) $payment->amount->first()->getValue()['value'];
-          $this->lastPaymentId = $payment->data->id;
+        if ($data = $payment->get('data')) {
+          $this->lastPaymentAmount = (float) $payment->get('amount')->first()->getValue()['value'];
+          $transaction = $data->first()->getValue();
+          // The Quickpay payment ID (for doing capture)
+          $this->lastPaymentId = $transaction->id;
         }
       }
     }

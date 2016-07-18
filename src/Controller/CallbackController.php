@@ -53,8 +53,18 @@ class CallbackController extends ControllerBase {
       $quickpay = Quickpay::loadFromRequest($content);
       if ($quickpay) {
         $transaction = new QuickpayTransaction($quickpay, $content);
-        // Invoke hook_quickpay_callback.
-        $this->moduleHandler->invokeAll('quickpay_callback', array($order_id, $transaction));
+        // Make sure test payments only pass through if allowed
+        if ($quickpay->allow_test || !$transaction->test_mode) {
+          \Drupal::logger('quickpay')->notice('Invoking succesfull callback for order @id.', array('@id' => $order_id));
+          // Invoke hook_quickpay_callback.
+          $this->moduleHandler->invokeAll('quickpay_callback', array(
+            $order_id,
+            $transaction
+          ));
+        }
+        else {
+          \Drupal::logger('quickpay')->error('Blocked test payment for order @id: !request.', array('@id' => $order_id, '!request' => print_r($request, TRUE)));
+        }
         $response->setStatusCode(200);
       }
     }

@@ -160,6 +160,13 @@ class ConfigurationForm extends EntityForm {
       '#default_value' => $entity->get('debug'),
     );
 
+    $form['allow_test'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Allow test payments'),
+      '#description' => t('If checked, payments made with test card will trigger quickpay callback and behave like normal payments.'),
+      '#default_value' => $entity->get('allow_test'),
+    );
+
     return parent::form($form, $form_state, $this->entity);
   }
 
@@ -195,6 +202,8 @@ class ConfigurationForm extends EntityForm {
     }
     $entity->set('autofee', $form_state->getValue('autofee'));
     $entity->set('debug', $form_state->getValue('debug'));
+    $entity->set('allow_test', $form_state->getValue('allow_test'));
+
     $status = $entity->save();
 
     $edit_link = $entity->link($this->t('Edit'));
