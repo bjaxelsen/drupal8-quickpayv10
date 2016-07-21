@@ -1,0 +1,7 @@
+uc_quickpay.complete:
+  path: '/cart/quickpay/complete'
+  defaults:
+    _controller: '\Drupal\uc_quickpay\Controller\ConfirmController::complete'
+    _title: 'Order complete'
+  requirements:
+    _permission: 'access content'

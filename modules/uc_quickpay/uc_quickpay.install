@@ -27,7 +27,7 @@ function uc_quickpay_schema() {
         'not null' => TRUE,
         'default' => 0,
       ],
-      'capture_date' => [
+      'capture_timestamp' => [
         'description' => 'The Unix timestamp of the capture.',
         'type' => 'int',
         'unsigned' => TRUE,

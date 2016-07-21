@@ -47,3 +47,6 @@ quickpay.configuration.*:
     debug:
       type: boolean
       label: 'Debug'
+    allow_test:
+      type: boolean
+      label: 'Allow test payments'

@@ -41,7 +41,7 @@ class CheckoutForm extends QuickpayCheckoutForm {
     $this->order_id = $order->id();
     $this->amount = $order->getTotal();
     $this->currency = $order->getCurrency();
-    $this->continue_url =  Url::fromRoute('uc_cart.checkout_complete', array(), array('absolute' => TRUE))->toString();
+    $this->continue_url =  Url::fromRoute('uc_quickpay.complete', array(), array('absolute' => TRUE))->toString();
     $this->cancel_url =  Url::fromRoute('uc_cart.checkout_review', array(), array('absolute' => TRUE))->toString();
     $form = parent::buildForm($form, $form_state);
     return $form;

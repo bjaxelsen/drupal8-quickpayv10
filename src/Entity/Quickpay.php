@@ -115,6 +115,11 @@ class Quickpay extends ConfigEntityBase implements QuickpayInterface {
   public $debug = FALSE;
 
   /**
+   * Whether to allow test payments
+   */
+  public $allow_test = FALSE;
+
+  /**
    * Get the language of the user.
    *
    * @inheritdoc
