@@ -15,6 +15,16 @@ function uc_quickpay_quickpay_callback($order_id, $transaction) {
   \Drupal::logger('uc_quickpay')
     ->info('Transaction callback for order ID: @id', array('@id' => $order_id));
   $order = Order::load($order_id);
+  // Check if we already registered payment - this can unfortunately happen
+  // that Quickpay tries to deliver confirmation asynchronously multiple times
+  if ($order->getStatusId() == 'payment_received') {
+    \Drupal::logger('uc_quickpay')
+      ->notice(
+        'Payment callback for order @order from Quickpay (transaction: @txn_id) but already marked as paid.',
+        ['@order' => $order->id(), '@txn_id' => $transaction->id]
+      );
+    return;
+  }
   if ($transaction->approved) {
     // Load the order and set the transaction ID.
     if (abs($transaction->amount - $order->getTotal()) > 0.01) {
@@ -42,7 +52,7 @@ function uc_quickpay_quickpay_callback($order_id, $transaction) {
       'payment_received'
     );
     \Drupal::logger('uc_quickpay')
-      ->info('Done comments.');
+      ->info('Done registering Quickpay payment.');
   }
   else {
     \Drupal::logger('quickpay')->warning('Not-approved transaction from Quickpay: @transaction.', array('@transaction' => print_r($transaction, TRUE)));

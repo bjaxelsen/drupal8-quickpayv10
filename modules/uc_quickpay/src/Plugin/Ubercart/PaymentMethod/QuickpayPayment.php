@@ -151,16 +151,20 @@ class QuickpayPayment extends PaymentMethodPluginBase implements OffsitePaymentM
     $this->lastPaymentAmount = 0;
 
     if ($ids) {
-      $payments = PaymentReceipt::loadMultiple($ids);
-      foreach ($payments as $payment) {
-        // @todo check this
-        // Check if we have an ID stored in the data object (this will
-        // be the Quickpay payment ID
-        if ($data = $payment->get('data')) {
-          $this->lastPaymentAmount = (float) $payment->get('amount')->first()->getValue()['value'];
-          $transaction = $data->first()->getValue();
-          // The Quickpay payment ID (for doing capture)
-          $this->lastPaymentId = $transaction->id;
+      if ($payments = PaymentReceipt::loadMultiple($ids)) {
+        foreach ($payments as $payment) {
+          // @todo check this
+          // Check if we have an ID stored in the data object (this will
+          // be the Quickpay payment ID
+          if ($data = $payment->get('data')) {
+            $this->lastPaymentAmount = (float) $payment->get('amount')
+              ->first()
+              ->getValue()['value'];
+            if ($transaction = $data->first()->getValue()) {
+              // The Quickpay payment ID (for doing capture)
+              $this->lastPaymentId = $transaction->id;
+            }
+          }
         }
       }
     }
