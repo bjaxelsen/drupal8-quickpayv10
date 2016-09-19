@@ -346,6 +346,10 @@ class ConfigurationForm extends EntityForm {
         'name' => t('American Express, issued in Denmark'),
         'image' => $images_path . 'amexpress.jpg',
       ),
+      'mobilepay' => array(
+        'name' => t('MobilePay'),
+        'image' => $images_path . 'mobilepay.png',
+      ),
       'danske-dk' => array(
         'name' => t('Danske Netbetaling'),
         'image' => $images_path . 'danskebank.jpg',
