@@ -63,13 +63,13 @@ class CallbackController extends ControllerBase {
           ));
         }
         else {
-          \Drupal::logger('quickpay')->error('Blocked test payment for order @id: !request.', array('@id' => $order_id, '!request' => print_r($request, TRUE)));
+          \Drupal::logger('quickpay')->error('Blocked test payment for order @id: @request.', array('@id' => $order_id, '@request' => print_r($request, TRUE)));
         }
         $response->setStatusCode(200);
       }
     }
     catch (Exception $e) {
-      \Drupal::logger('quickpay')->error('Could not create transaction from request: !request.', array('!request' => print_r($request, TRUE)));
+      \Drupal::logger('quickpay')->error('Could not create transaction from request: @request.', array('@request' => print_r($request, TRUE)));
     }
     return $response;
   }
