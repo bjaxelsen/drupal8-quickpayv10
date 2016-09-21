@@ -73,6 +73,7 @@ class QuickpayTransaction {
         '!response', print_r($response, TRUE),
       )));
     }
+
     $operation = $response['operations'][0];
     if (is_object($operation)) {
       $operation = (array) $operation;
@@ -95,7 +96,7 @@ class QuickpayTransaction {
     $this->data['acquirer'] = $response['acquirer'];
     $this->data['aq_status_code'] = $operation['aq_status_code'];
     $this->data['aq_status_msg'] = $operation['aq_status_msg'];
-    $this->data['test_mode'] = isset($operation['test_mode']) ? $operation['test_mode'] : FALSE;
+    $this->data['test_mode'] = isset($response['test_mode']) ? (bool) $response['test_mode'] : FALSE;
     $this->loaded = TRUE;
   }
 
