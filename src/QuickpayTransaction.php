@@ -74,7 +74,10 @@ class QuickpayTransaction {
       )));
     }
 
-    $operation = $response['operations'][0];
+    // Take the last operation (Quickpay will return all operations, also
+    // when the user has completed during the second try, the failed
+    // will still come first)
+    $operation = end($response['operations']);
     if (is_object($operation)) {
       $operation = (array) $operation;
     }
