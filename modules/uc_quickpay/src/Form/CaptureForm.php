@@ -141,7 +141,12 @@ class CaptureForm extends FormBase {
         );
       }
       else {
-        $response_body = var_export($capture->asArray(), TRUE);
+        if (method_exists($capture, 'as_array')) {
+          $response_body = var_export($capture->as_array(), TRUE);
+        }
+        else {
+          $response_body = '';
+        }
         drupal_set_message(t('Capture unsuccesful (code: @code).', ['@code' => $status]), 'error');
         \Drupal::logger('uc_quickpay')->error(
           'Error capturing order @order, status code: @status, response body: @body',
