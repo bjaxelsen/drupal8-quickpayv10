@@ -40,7 +40,7 @@ function uc_quickpay_quickpay_callback($order_id, $transaction) {
         );
     }
     $comment = t('Quickpay transaction ID: @txn_id', ['@txn_id' => $transaction->id]);
-    uc_payment_enter($order_id, 'quickpay', $transaction->amount, $order->getOwnerId(), $transaction, $comment);
+    uc_payment_enter($order_id, 'quickpay', $transaction->amount, $order->getOwnerId(), $transaction->getData(), $comment);
     uc_order_comment_save(
       $order_id,
       0,

@@ -124,6 +124,20 @@ class QuickpayTransaction {
   }
 
   /**
+   * Get data of transaction.
+   */
+  public function getData() {
+    // Make sure the transaction has been loaded.
+    if (!$this->loaded) {
+      $this->loadFromQuickpay();
+    }
+    if (isset($this->data)) {
+      return $this->data;
+    }
+    return FALSE;
+  }
+
+  /**
    * Load transaction details from QuickPay.
    *
    * @throws \Drupal\quickpay\QuickpayException
