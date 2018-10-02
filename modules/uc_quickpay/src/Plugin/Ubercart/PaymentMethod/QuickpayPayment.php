@@ -162,7 +162,7 @@ class QuickpayPayment extends PaymentMethodPluginBase implements OffsitePaymentM
               ->getValue()['value'];
             if ($transaction = $data->first()->getValue()) {
               // The Quickpay payment ID (for doing capture)
-              $this->lastPaymentId = $transaction->id;
+              $this->lastPaymentId = $transaction['id'];
             }
           }
         }
